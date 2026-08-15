@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import asyncio
 from datetime import UTC, date, datetime, timedelta
 from decimal import Decimal
 
@@ -30,12 +29,14 @@ from pytender import (
     RateProvenance,
     RateUnavailableError,
     RegistryFrozenError,
-    round_to_increment,
     RoundingError,
+    StaleRateError,
     StaticRateProvider,
     UnknownCurrencyError,
     UpRounding,
+    round_to_increment,
 )
+from pytender.adapters.database import from_columns, to_columns
 from pytender.infrastructure import (
     AsyncChainedRateProvider,
     AsyncCircuitBreakerRateProvider,
@@ -43,6 +44,7 @@ from pytender.infrastructure import (
     AsyncInverseRateProvider,
     AsyncObservedRateProvider,
     AsyncPolicyRateProvider,
+    AsyncRetryingRateProvider,
     AsyncTriangulatingRateProvider,
     ChainedRateProvider,
     CircuitBreakerRateProvider,
@@ -50,12 +52,11 @@ from pytender.infrastructure import (
     ObservedRateProvider,
     PolicyRateProvider,
     ProviderEvent,
+    RetryingRateProvider,
     RetryPolicy,
     TriangulatingRateProvider,
 )
-from pytender.adapters.database import from_columns, to_columns
 from pytender.registry import DEFAULT_REGISTRY
-from pytender.infrastructure import AsyncRetryingRateProvider, RetryingRateProvider
 from pytender.serialization import from_dict, to_dict
 
 
@@ -384,7 +385,7 @@ async def test_async_retry_exhaustion_and_policy_decorator() -> None:
         async def get_rate(self, base: CurrencyCode, quote: CurrencyCode) -> ExchangeRate:
             return ExchangeRate(base, quote, Decimal("1"), RateProvenance("old", as_of=old))
 
-    with pytest.raises(Exception):
+    with pytest.raises(StaleRateError):
         await AsyncPolicyRateProvider(
             Old(), RatePolicy(max_age=timedelta(seconds=1))
         ).get_rate(CurrencyCode("USD"), CurrencyCode("EUR"))

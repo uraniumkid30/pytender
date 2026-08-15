@@ -8,9 +8,9 @@ from ..rounding import (
     DownRounding,
     HalfEvenRounding,
     HalfUpRounding,
-    round_to_increment,
     RoundingPolicy,
     UpRounding,
+    round_to_increment,
 )
 from ..types import Currency, CurrencyCode, CurrencyStatus, MinorUnits
 
@@ -27,7 +27,7 @@ __all__ = [
     "HalfUpRounding",
     "MinorUnits",
     "Money",
-    "round_to_increment",
     "RoundingPolicy",
     "UpRounding",
+    "round_to_increment",
 ]

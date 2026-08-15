@@ -1,9 +1,14 @@
 import pytest
-pytest.importorskip("django")
+
 from pytender import Money
-from pytender.adapters.django import MoneyField
+
+django_adapter = pytest.importorskip("pytender.adapters.django", exc_type=ImportError)
+MoneyField = django_adapter.MoneyField
+
 
 def test_django_field_prep_value():
     field = MoneyField()
-    prepared = field.get_prep_value(Money.from_minor(123, "USD"))
-    assert prepared == {"amount": 123, "currency": "USD"}
+    assert field.get_prep_value(Money.from_major("12.34", "USD")) == {
+        "minor": 1234,
+        "currency": "USD",
+    }

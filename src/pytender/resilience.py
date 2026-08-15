@@ -3,10 +3,10 @@ from __future__ import annotations
 import asyncio
 import random
 import time
+from collections.abc import Awaitable, Callable
 from dataclasses import dataclass
-from enum import Enum
+from enum import StrEnum
 from threading import RLock
-from typing import Awaitable, Callable
 
 from .exceptions import CircuitOpenError, ProviderError, RateUnavailableError
 from .fx import AsyncExchangeRateProvider, ExchangeRate, ExchangeRateProvider
@@ -196,11 +196,11 @@ class RetryingRateProvider:
         self,
         inner: ExchangeRateProvider,
         *,
-        policy: RetryPolicy = RetryPolicy(),
+        policy: RetryPolicy | None = None,
         sleep: Callable[[float], None] = time.sleep,
     ) -> None:
         self._inner = inner
-        self._policy = policy
+        self._policy = policy or RetryPolicy()
         self._sleep = sleep
 
     def get_rate(self, base: CurrencyCode, quote: CurrencyCode) -> ExchangeRate:
@@ -243,10 +243,10 @@ class AsyncRetryingRateProvider:
         self,
         inner: AsyncExchangeRateProvider,
         *,
-        policy: RetryPolicy = RetryPolicy(),
+        policy: RetryPolicy | None = None,
     ) -> None:
         self._inner = inner
-        self._policy = policy
+        self._policy = policy or RetryPolicy()
 
     async def get_rate(self, base: CurrencyCode, quote: CurrencyCode) -> ExchangeRate:
         """Return an async quote with cancellation-safe bounded retries."""
@@ -276,7 +276,7 @@ class AsyncRetryingRateProvider:
         ) from last_error
 
 
-class CircuitState(str, Enum):
+class CircuitState(StrEnum):
     CLOSED = "closed"
     OPEN = "open"
     HALF_OPEN = "half_open"

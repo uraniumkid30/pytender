@@ -171,7 +171,7 @@ ISO_4217_DATA: dict[str, tuple[str, int, str, str, int]] = {
     "XCD": ("951", 2, "EC$", "East Caribbean Dollar", 1),
     "XCG": ("532", 2, "Cg", "Caribbean Guilder", 1),
     "XDR": ("960", 2, "", "Special Drawing Rights", 1),
-    "XOF": ("952", 0, "F CFA", "West African CFA Franc", 1),
+    "XOF": ("952", 0, "F CFA", "West African CFA Franc", 1),
     "XPD": ("964", 2, "", "Palladium", 1),
     "XPF": ("953", 0, "CFPF", "CFP Franc", 1),
     "XPT": ("962", 2, "", "Platinum", 1),

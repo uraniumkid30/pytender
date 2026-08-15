@@ -3,7 +3,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from datetime import date
 from decimal import Decimal
-from enum import Enum
+from enum import StrEnum
 from typing import NewType, TypeAlias
 
 CurrencyCode = NewType("CurrencyCode", str)
@@ -11,7 +11,7 @@ MinorUnits = NewType("MinorUnits", int)
 DecimalLike: TypeAlias = Decimal | int | str
 
 
-class CurrencyStatus(str, Enum):
+class CurrencyStatus(StrEnum):
     """Lifecycle state of a currency definition."""
 
     CURRENT = "current"

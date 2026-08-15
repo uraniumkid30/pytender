@@ -7,11 +7,7 @@ from typing import TYPE_CHECKING, Self
 from ._numeric import integer_decimal_digits
 from .exceptions import AllocationError, CurrencyMismatchError, InvalidAmountError
 from .registry import DEFAULT_REGISTRY, CurrencyRegistry
-from .rounding import (
-    DEFAULT_ROUNDING,
-    round_to_increment,
-    RoundingPolicy,
-)
+from .rounding import DEFAULT_ROUNDING, RoundingPolicy, round_to_increment
 from .types import Currency, DecimalLike, MinorUnits
 
 if TYPE_CHECKING:
@@ -20,7 +16,7 @@ if TYPE_CHECKING:
 
 def to_decimal(value: DecimalLike) -> Decimal:
     """Normalize safe decimal-like input while explicitly rejecting bool/float."""
-    if isinstance(value, bool) or isinstance(value, float):
+    if isinstance(value, (bool, float)):
         raise InvalidAmountError(
             "float/bool input is forbidden for money; use str, int, or Decimal"
         )

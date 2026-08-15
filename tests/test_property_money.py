@@ -1,10 +1,10 @@
 import pytest
 
-pytest.importorskip("hypothesis")
-
-from hypothesis import given, strategies as st
-
 from pytender import Money
+
+hypothesis = pytest.importorskip("hypothesis")
+given = hypothesis.given
+st = hypothesis.strategies
 
 
 @given(

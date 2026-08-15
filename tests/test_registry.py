@@ -1,7 +1,4 @@
-from pytender import (
-    DEFAULT_REGISTRY,
-    ISO_SNAPSHOT_DATE,
-)
+from pytender import DEFAULT_REGISTRY, ISO_SNAPSHOT_DATE
 
 def test_catalog_is_large_and_current_snapshot():
     assert len(DEFAULT_REGISTRY) >= 180

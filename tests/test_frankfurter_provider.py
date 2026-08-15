@@ -2,10 +2,11 @@ from decimal import Decimal
 
 import pytest
 
-httpx = pytest.importorskip("httpx")
-
 from pytender import CurrencyCode
-from pytender.providers.frankfurter import FrankfurterProvider
+
+httpx = pytest.importorskip("httpx")
+frankfurter = pytest.importorskip("pytender.providers.frankfurter")
+FrankfurterProvider = frankfurter.FrankfurterProvider
 
 
 def handler(request):

@@ -1,9 +1,10 @@
 from __future__ import annotations
 
+from collections.abc import Callable
 from dataclasses import dataclass
 from datetime import UTC, datetime, timedelta
-from enum import Enum
-from typing import TYPE_CHECKING, Callable, TypeAlias
+from enum import StrEnum
+from typing import TYPE_CHECKING, TypeAlias
 
 from .exceptions import RatePolicyError, StaleRateError
 
@@ -13,7 +14,7 @@ if TYPE_CHECKING:
 RateValidator: TypeAlias = Callable[["ExchangeRate"], None]
 
 
-class RateKind(str, Enum):
+class RateKind(StrEnum):
     """Business meaning attached to an FX quote.
 
     REFERENCE
@@ -35,7 +36,7 @@ class RateKind(str, Enum):
     DERIVED = "derived"
 
 
-class DerivationKind(str, Enum):
+class DerivationKind(StrEnum):
     """How a derived FX rate was produced.
 
     ``NONE`` is required for non-derived rates. ``CUSTOM`` lets provider authors
@@ -48,7 +49,7 @@ class DerivationKind(str, Enum):
     CUSTOM = "custom"
 
 
-class MissingTimestampPolicy(str, Enum):
+class MissingTimestampPolicy(StrEnum):
     """How a rate policy handles a quote with no provider ``as_of`` timestamp."""
 
     REJECT = "reject"

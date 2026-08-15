@@ -7,10 +7,11 @@ learn decorator-order semantics before deploying a sensible FX stack.
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+from collections.abc import Iterable
+from dataclasses import dataclass, field
 from datetime import timedelta
-from enum import Enum
-from typing import TYPE_CHECKING, Iterable
+from enum import StrEnum
+from typing import TYPE_CHECKING
 
 from .fx import (
     CachedRateProvider,
@@ -26,6 +27,7 @@ from .observability import (
     RateAuditSink,
 )
 from .policy import MissingTimestampPolicy, RateKind, RatePolicy
+from .registry import DEFAULT_REGISTRY, CurrencyRegistry
 from .resilience import (
     CircuitBreakerRateProvider,
     PairCircuitBreakerRateProvider,
@@ -35,14 +37,13 @@ from .resilience import (
     RetryPolicy,
 )
 from .rounding import DEFAULT_ROUNDING, RoundingPolicy
-from .registry import DEFAULT_REGISTRY, CurrencyRegistry
 
 if TYPE_CHECKING:
     from .fx import AsyncExchangeRateProvider, AsyncMoneyConverter
     from .observability import AsyncProviderObserver, AsyncRateAuditSink
 
 
-class CircuitScope(str, Enum):
+class CircuitScope(StrEnum):
     """Choose whether breaker health is shared by a provider or isolated by pair."""
 
     PROVIDER = "provider"
@@ -61,7 +62,7 @@ class ProductionProviderConfig:
     cache_ttl_seconds: float = 10.0
     cache_maxsize: int = 256
     stale_if_error_seconds: float = 0.0
-    retry: RetryPolicy = RetryPolicy()
+    retry: RetryPolicy = field(default_factory=RetryPolicy)
     rate_limit: RateLimitPolicy | None = None
     circuit_failure_threshold: int = 5
     circuit_recovery_seconds: float = 30.0
@@ -157,7 +158,7 @@ def _wrap_sync_provider(
 def build_production_provider(
     primary: ExchangeRateProvider,
     *fallbacks: ExchangeRateProvider,
-    config: ProductionProviderConfig = ProductionProviderConfig(),
+    config: ProductionProviderConfig | None = None,
     audit_sink: RateAuditSink | None = None,
     audit_failure_mode: HookFailureMode = HookFailureMode.FAIL_CLOSED,
     observer: ProviderObserver | None = None,
@@ -188,12 +189,11 @@ def build_production_provider(
     ordering or provider-specific policies should compose the low-level decorators
     from :mod:`pytender.infrastructure` directly.
     """
+    config = config or ProductionProviderConfig()
     wrapped = [_wrap_sync_provider(provider, config=config) for provider in (primary, *fallbacks)]
-    provider: ExchangeRateProvider
-    if len(wrapped) == 1:
-        provider = wrapped[0]
-    else:
-        provider = ChainedRateProvider(*wrapped)
+    provider: ExchangeRateProvider = (
+        wrapped[0] if len(wrapped) == 1 else ChainedRateProvider(*wrapped)
+    )
 
     provider = CachedRateProvider(
         provider,
@@ -220,7 +220,7 @@ def build_production_converter(
     primary: ExchangeRateProvider,
     *fallbacks: ExchangeRateProvider,
     policy: RatePolicy | None = None,
-    config: ProductionProviderConfig = ProductionProviderConfig(),
+    config: ProductionProviderConfig | None = None,
     registry: CurrencyRegistry = DEFAULT_REGISTRY,
     rounding: RoundingPolicy = DEFAULT_ROUNDING,
     audit_sink: RateAuditSink | None = None,
@@ -233,6 +233,7 @@ def build_production_converter(
     ``policy`` defaults to ``None`` for backwards-compatible general use. For checkout
     and other money-moving paths, pass :func:`checkout_policy` explicitly.
     """
+    config = config or ProductionProviderConfig()
     provider = build_production_provider(
         primary,
         *fallbacks,
@@ -282,7 +283,7 @@ def _wrap_async_provider(
 def build_async_production_provider(
     primary: "AsyncExchangeRateProvider",
     *fallbacks: "AsyncExchangeRateProvider",
-    config: ProductionProviderConfig = ProductionProviderConfig(),
+    config: ProductionProviderConfig | None = None,
     audit_sink: "AsyncRateAuditSink | None" = None,
     audit_failure_mode: HookFailureMode = HookFailureMode.FAIL_CLOSED,
     observer: "AsyncProviderObserver | None" = None,
@@ -297,15 +298,14 @@ def build_async_production_provider(
     from .fx import AsyncCachedRateProvider, AsyncChainedRateProvider
     from .observability import AsyncAuditedRateProvider, AsyncObservedRateProvider
 
+    config = config or ProductionProviderConfig()
     wrapped = [
         _wrap_async_provider(provider, config=config)
         for provider in (primary, *fallbacks)
     ]
-    provider: AsyncExchangeRateProvider
-    if len(wrapped) == 1:
-        provider = wrapped[0]
-    else:
-        provider = AsyncChainedRateProvider(*wrapped)
+    provider: AsyncExchangeRateProvider = (
+        wrapped[0] if len(wrapped) == 1 else AsyncChainedRateProvider(*wrapped)
+    )
 
     provider = AsyncCachedRateProvider(
         provider,
@@ -332,7 +332,7 @@ def build_async_production_converter(
     primary: "AsyncExchangeRateProvider",
     *fallbacks: "AsyncExchangeRateProvider",
     policy: RatePolicy | None = None,
-    config: ProductionProviderConfig = ProductionProviderConfig(),
+    config: ProductionProviderConfig | None = None,
     registry: CurrencyRegistry = DEFAULT_REGISTRY,
     rounding: RoundingPolicy = DEFAULT_ROUNDING,
     audit_sink: "AsyncRateAuditSink | None" = None,
@@ -343,6 +343,7 @@ def build_async_production_converter(
     """Build an async production provider stack and converter."""
     from .fx import AsyncMoneyConverter
 
+    config = config or ProductionProviderConfig()
     provider = build_async_production_provider(
         primary,
         *fallbacks,

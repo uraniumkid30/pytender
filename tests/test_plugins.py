@@ -1,4 +1,5 @@
 import pytest
+
 from pytender import ProviderError
 from pytender.infrastructure import (
     discover_provider_plugins,

@@ -1,6 +1,6 @@
 from pytender import (
-    from_dict,
     Money,
+    from_dict,
     to_dict,
 )
 

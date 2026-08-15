@@ -4,8 +4,8 @@ pytest.importorskip("sqlalchemy")
 
 from sqlalchemy import (
     Column,
-    create_engine,
     Integer,
+    create_engine,
 )
 from sqlalchemy.orm import DeclarativeBase, Session
 

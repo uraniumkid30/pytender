@@ -1,9 +1,10 @@
 from __future__ import annotations
 
 import asyncio
+from contextlib import suppress
 from dataclasses import dataclass
 from datetime import UTC, datetime
-from enum import Enum
+from enum import StrEnum
 from time import perf_counter
 from typing import Protocol, runtime_checkable
 
@@ -11,7 +12,7 @@ from .fx import AsyncExchangeRateProvider, ExchangeRate, ExchangeRateProvider
 from .types import CurrencyCode
 
 
-class HookFailureMode(str, Enum):
+class HookFailureMode(StrEnum):
     """Control whether audit/observability hook failures affect FX operations.
 
     ``FAIL_OPEN`` protects the pricing path: hook failures are ignored.
@@ -277,7 +278,7 @@ class AsyncObservedRateProvider:
                 succeeded=False,
                 error_type="CancelledError",
             )
-            try:
+            with suppress(asyncio.CancelledError):
                 await asyncio.shield(
                     _observe_async(
                         self._observer,
@@ -286,8 +287,6 @@ class AsyncObservedRateProvider:
                         preserve_cancellation=False,
                     )
                 )
-            except asyncio.CancelledError:
-                pass
             raise
         except Exception as exc:
             event = ProviderEvent(
