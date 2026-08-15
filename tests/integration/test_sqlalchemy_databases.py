@@ -7,11 +7,16 @@ import pytest
 
 pytest.importorskip("sqlalchemy")
 
-from sqlalchemy import Column, Integer, Numeric, String, create_engine
+from sqlalchemy import (
+    Column,
+    create_engine,
+    Integer,
+    String,
+)
 from sqlalchemy.orm import DeclarativeBase, Session
 
 from pytender import Money
-from pytender.adapters.sqlalchemy import MoneyType
+from pytender.adapters.sqlalchemy import MinorUnitsType, MoneyType
 
 DATABASE_URL = os.getenv("PYTENDER_DATABASE_URL")
 pytestmark = pytest.mark.skipif(
@@ -34,7 +39,7 @@ class JsonMoneyRecord(Base):
 class NativeMoneyRecord(Base):
     __tablename__ = "pytender_money_native_integration"
     id = Column(Integer, primary_key=True)
-    amount_minor = Column(Numeric(38, 0), nullable=False, index=True)
+    amount_minor = Column(MinorUnitsType(38), nullable=False, index=True)
     currency_code = Column(String(3), nullable=False, index=True)
 
 

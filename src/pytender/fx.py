@@ -2,20 +2,21 @@ from __future__ import annotations
 
 import asyncio
 from collections import OrderedDict
+from collections.abc import Mapping
 from concurrent.futures import Future
 from dataclasses import dataclass, field
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 from decimal import Decimal, InvalidOperation, localcontext
 from threading import RLock
 from time import monotonic
 from types import MappingProxyType
-from typing import Mapping, Protocol, runtime_checkable
+from typing import Protocol, runtime_checkable
 
 from ._numeric import integer_decimal_digits
 from .exceptions import InvalidRateError, ProviderError, RateUnavailableError
 from .money import Money
 from .policy import DerivationKind, RateKind, RatePolicy
-from .registry import CurrencyRegistry, DEFAULT_REGISTRY
+from .registry import DEFAULT_REGISTRY, CurrencyRegistry
 from .rounding import DEFAULT_ROUNDING, RoundingPolicy
 from .types import Currency, CurrencyCode, MinorUnits
 
@@ -36,7 +37,7 @@ class RateProvenance:
     provider: str
     source_uri: str = ""
     as_of: datetime | None = None
-    fetched_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+    fetched_at: datetime = field(default_factory=lambda: datetime.now(UTC))
     request_id: str = ""
     metadata: Mapping[str, str] = field(default_factory=dict)
 
@@ -143,7 +144,11 @@ class AsyncExchangeRateProvider(Protocol):
 class StaticRateProvider:
     """Deterministic in-memory provider useful for testing, replay and fixed pricing."""
 
-    __slots__ = ("_rates", "kind", "name")
+    __slots__ = (
+        "_rates",
+        "kind",
+        "name",
+    )
 
     def __init__(
         self,
@@ -189,7 +194,9 @@ class StaticRateProvider:
 class AsyncFromSyncProvider:
     """Adapt only cheap non-blocking sync providers to the async protocol."""
 
-    __slots__ = ("_inner",)
+    __slots__ = (
+        "_inner",
+    )
 
     def __init__(self, inner: ExchangeRateProvider) -> None:
         self._inner = inner
@@ -202,7 +209,10 @@ class AsyncFromSyncProvider:
 class PolicyRateProvider:
     """Enforce a business :class:`RatePolicy` on every synchronous quote."""
 
-    __slots__ = ("_inner", "_policy")
+    __slots__ = (
+        "_inner",
+        "_policy",
+    )
 
     def __init__(self, inner: ExchangeRateProvider, policy: RatePolicy) -> None:
         self._inner = inner
@@ -218,7 +228,10 @@ class PolicyRateProvider:
 class AsyncPolicyRateProvider:
     """Async rate-policy decorator."""
 
-    __slots__ = ("_inner", "_policy")
+    __slots__ = (
+        "_inner",
+        "_policy",
+    )
 
     def __init__(self, inner: AsyncExchangeRateProvider, policy: RatePolicy) -> None:
         self._inner = inner
@@ -234,7 +247,9 @@ class AsyncPolicyRateProvider:
 class InverseRateProvider:
     """Try direct lookup, then derive the reciprocal from the reverse pair."""
 
-    __slots__ = ("_inner",)
+    __slots__ = (
+        "_inner",
+    )
 
     def __init__(self, inner: ExchangeRateProvider) -> None:
         self._inner = inner
@@ -247,7 +262,7 @@ class InverseRateProvider:
             try:
                 reverse = self._inner.get_rate(quote, base)
             except RateUnavailableError:
-                raise direct_error
+                raise direct_error from None
 
         provenance = reverse.provenance
         value = _reciprocal(reverse.value)
@@ -275,7 +290,9 @@ class InverseRateProvider:
 class AsyncInverseRateProvider:
     """Async reciprocal-rate decorator."""
 
-    __slots__ = ("_inner",)
+    __slots__ = (
+        "_inner",
+    )
 
     def __init__(self, inner: AsyncExchangeRateProvider) -> None:
         self._inner = inner
@@ -288,7 +305,7 @@ class AsyncInverseRateProvider:
             try:
                 reverse = await self._inner.get_rate(quote, base)
             except RateUnavailableError:
-                raise direct_error
+                raise direct_error from None
 
         provenance = reverse.provenance
         value = _reciprocal(reverse.value)
@@ -316,7 +333,11 @@ class AsyncInverseRateProvider:
 class TriangulatingRateProvider:
     """Try a direct pair, then derive it through explicit pivot currencies."""
 
-    __slots__ = ("_inner", "_max_leg_skew", "_pivots")
+    __slots__ = (
+        "_inner",
+        "_max_leg_skew",
+        "_pivots",
+    )
 
     def __init__(
         self,
@@ -373,7 +394,11 @@ class TriangulatingRateProvider:
 class AsyncTriangulatingRateProvider:
     """Async triangulation; independent pivot legs are requested concurrently."""
 
-    __slots__ = ("_inner", "_max_leg_skew", "_pivots")
+    __slots__ = (
+        "_inner",
+        "_max_leg_skew",
+        "_pivots",
+    )
 
     def __init__(
         self,
@@ -438,7 +463,9 @@ class ChainedRateProvider:
     for authoritative pair unavailability.
     """
 
-    __slots__ = ("_providers",)
+    __slots__ = (
+        "_providers",
+    )
 
     def __init__(self, *providers: ExchangeRateProvider) -> None:
         if not providers:
@@ -471,7 +498,9 @@ class ChainedRateProvider:
 class AsyncChainedRateProvider:
     """Async ordered provider failover."""
 
-    __slots__ = ("_providers",)
+    __slots__ = (
+        "_providers",
+    )
 
     def __init__(self, *providers: AsyncExchangeRateProvider) -> None:
         if not providers:
@@ -511,13 +540,13 @@ class CachedRateProvider:
     """
 
     __slots__ = (
+        "_cache",
+        "_inflight",
         "_inner",
-        "_ttl",
+        "_lock",
         "_maxsize",
         "_stale_if_error",
-        "_cache",
-        "_lock",
-        "_inflight",
+        "_ttl",
     )
 
     def __init__(
@@ -610,13 +639,13 @@ class AsyncCachedRateProvider:
     """Async bounded process-local LRU/TTL cache with single-flight coalescing."""
 
     __slots__ = (
+        "_cache",
+        "_inflight",
         "_inner",
-        "_ttl",
+        "_lock",
         "_maxsize",
         "_stale_if_error",
-        "_cache",
-        "_lock",
-        "_inflight",
+        "_ttl",
     )
 
     def __init__(
@@ -718,7 +747,12 @@ class AsyncCachedRateProvider:
 class MoneyConverter:
     """Convert Money explicitly through a synchronous provider."""
 
-    __slots__ = ("_provider", "_registry", "_rounding", "_policy")
+    __slots__ = (
+        "_policy",
+        "_provider",
+        "_registry",
+        "_rounding",
+    )
 
     def __init__(
         self,
@@ -794,7 +828,12 @@ class MoneyConverter:
 class AsyncMoneyConverter:
     """Async Money converter with the same semantics as :class:`MoneyConverter`."""
 
-    __slots__ = ("_provider", "_registry", "_rounding", "_policy")
+    __slots__ = (
+        "_policy",
+        "_provider",
+        "_registry",
+        "_rounding",
+    )
 
     def __init__(
         self,

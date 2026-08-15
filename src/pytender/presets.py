@@ -29,13 +29,13 @@ from .policy import MissingTimestampPolicy, RateKind, RatePolicy
 from .resilience import (
     CircuitBreakerRateProvider,
     PairCircuitBreakerRateProvider,
-    RateLimitPolicy,
     RateLimitedRateProvider,
-    RetryPolicy,
+    RateLimitPolicy,
     RetryingRateProvider,
+    RetryPolicy,
 )
 from .rounding import DEFAULT_ROUNDING, RoundingPolicy
-from .registry import CurrencyRegistry, DEFAULT_REGISTRY
+from .registry import DEFAULT_REGISTRY, CurrencyRegistry
 
 if TYPE_CHECKING:
     from .fx import AsyncExchangeRateProvider, AsyncMoneyConverter
@@ -230,7 +230,7 @@ def build_production_converter(
 ) -> MoneyConverter:
     """Build a production provider stack and wrap it in :class:`MoneyConverter`.
 
-    ``policy`` defaults to ``None`` for general-purpose conversion. For checkout
+    ``policy`` defaults to ``None`` for backwards-compatible general use. For checkout
     and other money-moving paths, pass :func:`checkout_policy` explicitly.
     """
     provider = build_production_provider(

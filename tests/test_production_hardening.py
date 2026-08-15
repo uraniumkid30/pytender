@@ -1,18 +1,18 @@
 from __future__ import annotations
 
 import asyncio
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 from decimal import Decimal, getcontext
 
 import pytest
 
 from pytender import (
+    DEFAULT_REGISTRY,
     AsyncMoneyConverter,
     CircuitOpenError,
     Currency,
     CurrencyCode,
     CurrencyRegistry,
-    DEFAULT_REGISTRY,
     ExchangeRate,
     HalfEvenRounding,
     InvalidAmountError,
@@ -39,8 +39,8 @@ from pytender.infrastructure import (
     ChainedRateProvider,
     CircuitBreakerRateProvider,
     RateAuditRecord,
-    RetryPolicy,
     RetryingRateProvider,
+    RetryPolicy,
     TriangulatingRateProvider,
 )
 
@@ -62,7 +62,7 @@ def _rate(
 
 
 def test_rate_policy_rejects_stale_rate() -> None:
-    now = datetime(2026, 8, 15, tzinfo=timezone.utc)
+    now = datetime(2026, 8, 15, tzinfo=UTC)
     rate = _rate(as_of=now - timedelta(seconds=31))
     policy = RatePolicy(max_age=timedelta(seconds=30))
 
@@ -125,7 +125,7 @@ def test_converter_can_return_exact_rate_for_audit_or_replay() -> None:
 
 
 def test_converter_enforces_policy_before_money_is_returned() -> None:
-    old = datetime.now(timezone.utc) - timedelta(hours=1)
+    old = datetime.now(UTC) - timedelta(hours=1)
 
     class OldProvider:
         def get_rate(self, base: CurrencyCode, quote: CurrencyCode) -> ExchangeRate:
@@ -337,7 +337,7 @@ async def test_async_retry_and_cache_waiter_cancellation_do_not_cancel_owner() -
 def test_triangulation_can_reject_conflicting_leg_timestamps() -> None:
     from datetime import timedelta
 
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
 
     class TimedProvider:
         def get_rate(self, base: CurrencyCode, quote: CurrencyCode) -> ExchangeRate:
@@ -366,7 +366,7 @@ def test_triangulation_can_reject_conflicting_leg_timestamps() -> None:
 
 
 def test_rate_policy_checks_future_fetched_at_when_used_as_timestamp() -> None:
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
     rate = ExchangeRate(
         CurrencyCode("USD"),
         CurrencyCode("EUR"),

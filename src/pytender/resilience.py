@@ -84,7 +84,15 @@ class CircuitSnapshot:
 class RateLimitedRateProvider:
     """Protect a synchronous provider with a local token-bucket rate limit."""
 
-    __slots__ = ("_inner", "_policy", "_clock", "_sleep", "_lock", "_tokens", "_updated_at")
+    __slots__ = (
+        "_clock",
+        "_inner",
+        "_lock",
+        "_policy",
+        "_sleep",
+        "_tokens",
+        "_updated_at",
+    )
 
     def __init__(
         self,
@@ -127,7 +135,15 @@ class RateLimitedRateProvider:
 class AsyncRateLimitedRateProvider:
     """Async token-bucket counterpart to :class:`RateLimitedRateProvider`."""
 
-    __slots__ = ("_inner", "_policy", "_clock", "_sleep", "_lock", "_tokens", "_updated_at")
+    __slots__ = (
+        "_clock",
+        "_inner",
+        "_lock",
+        "_policy",
+        "_sleep",
+        "_tokens",
+        "_updated_at",
+    )
 
     def __init__(
         self,
@@ -170,7 +186,11 @@ class AsyncRateLimitedRateProvider:
 class RetryingRateProvider:
     """Retry transient failures from a synchronous provider with bounded backoff."""
 
-    __slots__ = ("_inner", "_policy", "_sleep")
+    __slots__ = (
+        "_inner",
+        "_policy",
+        "_sleep",
+    )
 
     def __init__(
         self,
@@ -214,7 +234,10 @@ class RetryingRateProvider:
 class AsyncRetryingRateProvider:
     """Async counterpart to :class:`RetryingRateProvider`."""
 
-    __slots__ = ("_inner", "_policy")
+    __slots__ = (
+        "_inner",
+        "_policy",
+    )
 
     def __init__(
         self,
@@ -263,13 +286,13 @@ class CircuitBreakerRateProvider:
     """Fail fast after repeated provider failures and probe after a recovery window."""
 
     __slots__ = (
-        "_inner",
         "_failure_threshold",
-        "_recovery_timeout",
-        "_lock",
         "_failures",
-        "_opened_at",
         "_half_open_probe",
+        "_inner",
+        "_lock",
+        "_opened_at",
+        "_recovery_timeout",
     )
 
     def __init__(
@@ -358,13 +381,13 @@ class AsyncCircuitBreakerRateProvider:
     """Async circuit breaker with the same semantics as the synchronous variant."""
 
     __slots__ = (
-        "_inner",
         "_failure_threshold",
-        "_recovery_timeout",
-        "_lock",
         "_failures",
-        "_opened_at",
         "_half_open_probe",
+        "_inner",
+        "_lock",
+        "_opened_at",
+        "_recovery_timeout",
     )
 
     def __init__(

@@ -7,17 +7,20 @@ from decimal import Decimal
 import pytest
 
 from pytender import (
+    AsyncExchangeRateProvider,
     Currency,
     CurrencyCode,
     CurrencyRegistry,
     CurrencyStatus,
     ExchangeRate,
+    ExchangeRateProvider,
     InvalidRateError,
     Money,
     MoneyConverter,
     SimpleMoneyFormatter,
     StaticRateProvider,
 )
+from pytender.adapters.database import from_columns, to_columns
 from pytender.infrastructure import (
     AsyncCachedRateProvider,
     AsyncFromSyncProvider,
@@ -25,7 +28,6 @@ from pytender.infrastructure import (
     CachedRateProvider,
     TriangulatingRateProvider,
 )
-from pytender.adapters.database import from_columns, to_columns
 
 
 def test_triangulation_and_provenance():
@@ -139,15 +141,11 @@ def test_deterministic_formatter_and_negative_symbol():
 def test_provider_protocols_are_discoverable_from_provider_namespace():
     from pytender.providers import AsyncExchangeRateProvider as AsyncP
     from pytender.providers import ExchangeRateProvider as SyncP
-    from pytender import AsyncExchangeRateProvider, ExchangeRateProvider
 
     assert SyncP is ExchangeRateProvider
     assert AsyncP is AsyncExchangeRateProvider
 
 
 def test_converter_rejects_invalid_provider_early():
-    import pytest
-    from pytender import MoneyConverter
-
-    with pytest.raises(TypeError, match="docs/PROVIDERS.md"):
+    with pytest.raises(TypeError, match=r"docs/PROVIDERS\.md"):
         MoneyConverter(object())  # type: ignore[arg-type]

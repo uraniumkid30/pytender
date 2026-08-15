@@ -11,7 +11,13 @@ from ..money import Money
 class BabelMoneyFormatter:
     """CLDR-backed locale-aware formatter using optional Babel."""
 
-    __slots__ = ("locale", "pattern", "currency_digits", "decimal_quantization", "group_separator")
+    __slots__ = (
+        "currency_digits",
+        "decimal_quantization",
+        "group_separator",
+        "locale",
+        "pattern",
+    )
 
     def __init__(
         self,

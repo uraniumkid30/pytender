@@ -3,7 +3,7 @@ from __future__ import annotations
 import asyncio
 import inspect
 import time
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from decimal import Decimal
 
 import pytest
@@ -27,19 +27,19 @@ from pytender.infrastructure import (
     AsyncRateLimitedRateProvider,
     AsyncRetryingRateProvider,
     AuditedRateProvider,
+    build_production_converter,
     CachedRateProvider,
+    checkout_policy,
     CircuitScope,
+    display_policy,
     HookFailureMode,
     ObservedRateProvider,
     PairCircuitBreakerRateProvider,
     ProductionProviderConfig,
     ProviderEvent,
     RateLimitPolicy,
-    RetryPolicy,
-    build_production_converter,
-    checkout_policy,
-    display_policy,
     reporting_policy,
+    RetryPolicy,
     treasury_policy,
 )
 
@@ -57,7 +57,7 @@ def _rate(
         base,
         quote,
         Decimal(value),
-        RateProvenance("test", as_of=datetime.now(timezone.utc)),
+        RateProvenance("test", as_of=datetime.now(UTC)),
         RateKind.EXECUTABLE,
     )
 

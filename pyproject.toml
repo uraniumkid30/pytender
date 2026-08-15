@@ -41,6 +41,11 @@ dev = [
   "httpx>=0.27,<1", "pydantic>=2.7,<3", "Django>=5.2,<7", "SQLAlchemy>=2.0,<3", "Babel>=2.15,<3",
 ]
 
+[project.urls]
+Repository = "https://github.com/uraniumkid30/pytender.git"
+Issues = "https://github.com/uraniumkid30/pytender/issues"
+Changelog = "https://github.com/uraniumkid30/pytender/blob/main/CHANGELOG.md"
+
 [tool.setuptools.dynamic]
 version = {attr = "pytender._version.__version__"}
 [tool.setuptools.packages.find]

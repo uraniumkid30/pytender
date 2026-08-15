@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import json
-from datetime import datetime, time, timezone
+from datetime import UTC, datetime, time
 from decimal import Decimal
 from types import TracebackType
 from typing import Any, Self
@@ -37,7 +37,7 @@ def _build(data: dict[str, Any], source_uri: str) -> ExchangeRate:
         as_of = datetime.combine(
             datetime.strptime(str(data["date"]), "%Y-%m-%d").date(),
             time.min,
-            tzinfo=timezone.utc,
+            tzinfo=UTC,
         )
     except (KeyError, ValueError, TypeError) as exc:
         raise ProviderError(
@@ -49,7 +49,10 @@ def _build(data: dict[str, Any], source_uri: str) -> ExchangeRate:
 class FrankfurterProvider:
     """Synchronous Frankfurter v2 provider. Reuse and close long-lived instances."""
 
-    __slots__ = ("_client", "_owned")
+    __slots__ = (
+        "_client",
+        "_owned",
+    )
 
     def __init__(self, *, client: httpx.Client | None = None, timeout: float = 5.0) -> None:
         self._owned = client is None
@@ -98,7 +101,10 @@ class FrankfurterProvider:
 class AsyncFrankfurterProvider:
     """Asynchronous Frankfurter v2 provider. Prefer one instance per application."""
 
-    __slots__ = ("_client", "_owned")
+    __slots__ = (
+        "_client",
+        "_owned",
+    )
 
     def __init__(self, *, client: httpx.AsyncClient | None = None, timeout: float = 5.0) -> None:
         self._owned = client is None

@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import asyncio
-from datetime import date, datetime, timedelta, timezone
+from datetime import UTC, date, datetime, timedelta
 from decimal import Decimal
 
 import pytest
@@ -30,11 +30,11 @@ from pytender import (
     RateProvenance,
     RateUnavailableError,
     RegistryFrozenError,
+    round_to_increment,
     RoundingError,
     StaticRateProvider,
     UnknownCurrencyError,
     UpRounding,
-    round_to_increment,
 )
 from pytender.infrastructure import (
     AsyncChainedRateProvider,
@@ -240,7 +240,7 @@ def test_static_inverse_and_chain_contracts() -> None:
 
 
 def test_policy_provider_and_future_timestamp() -> None:
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
 
     class FutureProvider:
         def get_rate(self, base: CurrencyCode, quote: CurrencyCode) -> ExchangeRate:
@@ -378,7 +378,7 @@ async def test_async_retry_exhaustion_and_policy_decorator() -> None:
     with pytest.raises(ProviderError, match="after 2 attempts"):
         await retrying.get_rate(CurrencyCode("USD"), CurrencyCode("EUR"))
 
-    old = datetime.now(timezone.utc) - timedelta(days=1)
+    old = datetime.now(UTC) - timedelta(days=1)
 
     class Old:
         async def get_rate(self, base: CurrencyCode, quote: CurrencyCode) -> ExchangeRate:

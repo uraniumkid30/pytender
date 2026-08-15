@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 from enum import Enum
 from typing import TYPE_CHECKING, Callable, TypeAlias
 
@@ -113,7 +113,7 @@ class RatePolicy:
             )
 
         reference_time = rate.provenance.as_of
-        current = now or datetime.now(timezone.utc)
+        current = now or datetime.now(UTC)
         if current.tzinfo is None:
             raise ValueError("now must be timezone-aware")
 

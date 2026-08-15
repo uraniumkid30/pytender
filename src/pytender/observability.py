@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import asyncio
 from dataclasses import dataclass
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from enum import Enum
 from time import perf_counter
 from typing import Protocol, runtime_checkable
@@ -130,13 +130,17 @@ async def _observe_async(
 class AuditedRateProvider:
     """Record successful rates, with explicit fail-open/fail-closed semantics.
 
-    Audit defaults to ``FAIL_CLOSED`` because an
+    Audit defaults to ``FAIL_CLOSED`` to preserve the 1.x behaviour and because an
     application choosing synchronous audit often intends audit persistence to be a
     correctness requirement. Use ``FAIL_OPEN`` only when losing an audit record is an
     accepted business decision.
     """
 
-    __slots__ = ("_inner", "_mode", "_sink")
+    __slots__ = (
+        "_inner",
+        "_mode",
+        "_sink",
+    )
 
     def __init__(
         self,
@@ -152,7 +156,7 @@ class AuditedRateProvider:
     def get_rate(self, base: CurrencyCode, quote: CurrencyCode) -> ExchangeRate:
         """Return a rate and write its audit record according to ``failure_mode``."""
         rate = self._inner.get_rate(base, quote)
-        record = RateAuditRecord(rate=rate, observed_at=datetime.now(timezone.utc))
+        record = RateAuditRecord(rate=rate, observed_at=datetime.now(UTC))
         _record_audit(self._sink, record, self._mode)
         return rate
 
@@ -160,7 +164,11 @@ class AuditedRateProvider:
 class AsyncAuditedRateProvider:
     """Async audit decorator with explicit hook-failure semantics."""
 
-    __slots__ = ("_inner", "_mode", "_sink")
+    __slots__ = (
+        "_inner",
+        "_mode",
+        "_sink",
+    )
 
     def __init__(
         self,
@@ -176,7 +184,7 @@ class AsyncAuditedRateProvider:
     async def get_rate(self, base: CurrencyCode, quote: CurrencyCode) -> ExchangeRate:
         """Return a rate and asynchronously persist its audit record."""
         rate = await self._inner.get_rate(base, quote)
-        record = RateAuditRecord(rate=rate, observed_at=datetime.now(timezone.utc))
+        record = RateAuditRecord(rate=rate, observed_at=datetime.now(UTC))
         await _record_audit_async(self._sink, record, self._mode)
         return rate
 
@@ -188,7 +196,11 @@ class ObservedRateProvider:
     application deliberately wants telemetry failure to fail the FX operation.
     """
 
-    __slots__ = ("_inner", "_mode", "_observer")
+    __slots__ = (
+        "_inner",
+        "_mode",
+        "_observer",
+    )
 
     def __init__(
         self,
@@ -232,7 +244,11 @@ class ObservedRateProvider:
 class AsyncObservedRateProvider:
     """Async operational-observability decorator with cancellation-safe semantics."""
 
-    __slots__ = ("_inner", "_mode", "_observer")
+    __slots__ = (
+        "_inner",
+        "_mode",
+        "_observer",
+    )
 
     def __init__(
         self,

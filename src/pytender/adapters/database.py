@@ -3,7 +3,7 @@ from __future__ import annotations
 from typing import TypedDict
 
 from ..money import Money
-from ..registry import CurrencyRegistry, DEFAULT_REGISTRY
+from ..registry import DEFAULT_REGISTRY, CurrencyRegistry
 
 
 class MoneyColumns(TypedDict):

@@ -6,8 +6,12 @@ from typing import TYPE_CHECKING, Self
 
 from ._numeric import integer_decimal_digits
 from .exceptions import AllocationError, CurrencyMismatchError, InvalidAmountError
-from .registry import CurrencyRegistry, DEFAULT_REGISTRY
-from .rounding import DEFAULT_ROUNDING, RoundingPolicy, round_to_increment
+from .registry import DEFAULT_REGISTRY, CurrencyRegistry
+from .rounding import (
+    DEFAULT_ROUNDING,
+    round_to_increment,
+    RoundingPolicy,
+)
 from .types import Currency, DecimalLike, MinorUnits
 
 if TYPE_CHECKING:
@@ -27,7 +31,7 @@ def to_decimal(value: DecimalLike) -> Decimal:
             result = Decimal(value)
         else:
             result = Decimal(value)
-    except (InvalidOperation, TypeError, ValueError) as exc:
+    except (InvalidOperation, ValueError) as exc:
         raise InvalidAmountError(f"invalid decimal amount: {value!r}") from exc
     if not result.is_finite():
         raise InvalidAmountError("money amounts must be finite")
@@ -206,13 +210,10 @@ class Money:
 
         quotient, remainder = divmod(abs(self.minor), parts)
         sign = -1 if self.minor < 0 else 1
-        return tuple(
-            Money(
-                MinorUnits(sign * (quotient + (index < remainder))),
-                self.currency,
-            )
-            for index in range(parts)
-        )
+        values = [quotient * sign for _ in range(parts)]
+        for index in range(remainder):
+            values[index] += sign
+        return tuple(Money(MinorUnits(value), self.currency) for value in values)
 
     def allocate(self, ratios: tuple[int, ...] | list[int]) -> tuple["Money", ...]:
         """Allocate money by non-negative integer ratios without losing minor units.
@@ -236,15 +237,9 @@ class Money:
         absolute = abs(self.minor)
         shares = [(absolute * ratio) // total_ratio for ratio in ratios]
         leftover = absolute - sum(shares)
-        count = len(shares)
-        full_rounds, remainder = divmod(leftover, count)
-        return tuple(
-            Money(
-                MinorUnits(sign * (share + full_rounds + (index < remainder))),
-                self.currency,
-            )
-            for index, share in enumerate(shares)
-        )
+        for index in range(leftover):
+            shares[index % len(shares)] += 1
+        return tuple(Money(MinorUnits(sign * share), self.currency) for share in shares)
 
     def __lt__(self, other: "Money") -> bool:
         if not isinstance(other, Money):

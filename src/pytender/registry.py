@@ -25,7 +25,11 @@ class CurrencyRegistry:
     and pass it explicitly to constructors/converters.
     """
 
-    __slots__ = ("_currencies", "_frozen", "_lock")
+    __slots__ = (
+        "_currencies",
+        "_frozen",
+        "_lock",
+    )
 
     def __init__(self, currencies: Iterable[Currency] = (), *, frozen: bool = False) -> None:
         self._currencies: dict[CurrencyCode, Currency] = {}
@@ -159,7 +163,7 @@ class CurrencyRegistry:
 DEFAULT_REGISTRY = CurrencyRegistry.iso4217(frozen=True)
 
 __all__ = [
-    "CurrencyRegistry",
     "DEFAULT_REGISTRY",
     "ISO_SNAPSHOT_DATE",
+    "CurrencyRegistry",
 ]

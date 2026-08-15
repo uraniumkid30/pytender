@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from importlib.metadata import EntryPoint, entry_points
+from importlib.metadata import entry_points, EntryPoint
 from typing import Any, Protocol, runtime_checkable
 
 from .exceptions import ProviderError

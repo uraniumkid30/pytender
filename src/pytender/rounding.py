@@ -1,6 +1,13 @@
 from __future__ import annotations
 
-from decimal import Decimal, ROUND_DOWN, ROUND_HALF_EVEN, ROUND_HALF_UP, ROUND_UP, localcontext
+from decimal import (
+    ROUND_DOWN,
+    ROUND_HALF_EVEN,
+    ROUND_HALF_UP,
+    ROUND_UP,
+    Decimal,
+    localcontext,
+)
 from typing import Protocol, runtime_checkable
 
 from ._numeric import integer_decimal_digits
@@ -18,7 +25,9 @@ class RoundingPolicy(Protocol):
 class DecimalRounding:
     """Decimal-based rounding using one of Python's explicit Decimal rounding modes."""
 
-    __slots__ = ("mode",)
+    __slots__ = (
+        "mode",
+    )
 
     def __init__(self, mode: str = ROUND_HALF_EVEN) -> None:
         self.mode = mode
@@ -38,7 +47,8 @@ class DecimalRounding:
 class HalfEvenRounding(DecimalRounding):
     """Banker's rounding (ties to even), the default PyTender policy."""
 
-    __slots__ = ()
+    __slots__ = (
+    )
 
     def __init__(self) -> None:
         super().__init__(ROUND_HALF_EVEN)
@@ -47,7 +57,8 @@ class HalfEvenRounding(DecimalRounding):
 class HalfUpRounding(DecimalRounding):
     """Round ties away from zero in the common financial half-up style."""
 
-    __slots__ = ()
+    __slots__ = (
+    )
 
     def __init__(self) -> None:
         super().__init__(ROUND_HALF_UP)
@@ -56,7 +67,8 @@ class HalfUpRounding(DecimalRounding):
 class DownRounding(DecimalRounding):
     """Round toward zero."""
 
-    __slots__ = ()
+    __slots__ = (
+    )
 
     def __init__(self) -> None:
         super().__init__(ROUND_DOWN)
@@ -65,7 +77,8 @@ class DownRounding(DecimalRounding):
 class UpRounding(DecimalRounding):
     """Round away from zero."""
 
-    __slots__ = ()
+    __slots__ = (
+    )
 
     def __init__(self) -> None:
         super().__init__(ROUND_UP)

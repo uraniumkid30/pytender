@@ -6,7 +6,7 @@ except ImportError as exc:  # pragma: no cover
     raise ImportError("Pydantic adapter requires PyTender[pydantic]") from exc
 
 from ..money import Money
-from ..registry import CurrencyRegistry, DEFAULT_REGISTRY
+from ..registry import DEFAULT_REGISTRY, CurrencyRegistry
 from ..serialization import from_dict, to_dict
 
 
@@ -41,6 +41,6 @@ class MoneyModel(BaseModel):
         )
 
     @classmethod
-    def from_money(cls, money: Money) -> "MoneyModel":
+    def from_money(cls, money: Money) -> MoneyModel:
         """Create a transport model from a domain Money value."""
         return cls(**to_dict(money))

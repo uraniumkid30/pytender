@@ -2,7 +2,11 @@ import pytest
 
 pytest.importorskip("sqlalchemy")
 
-from sqlalchemy import Column, Integer, create_engine
+from sqlalchemy import (
+    Column,
+    create_engine,
+    Integer,
+)
 from sqlalchemy.orm import DeclarativeBase, Session
 
 from pytender import Money
