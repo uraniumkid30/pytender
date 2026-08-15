@@ -1,6 +1,6 @@
 import pytest
 
-from pytender import Money
+from moneytender import Money
 
 django_adapter = pytest.importorskip("pytender.adapters.django", exc_type=ImportError)
 MoneyField = django_adapter.MoneyField

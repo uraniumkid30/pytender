@@ -30,14 +30,14 @@ class Base(DeclarativeBase):
 
 
 class JsonMoneyRecord(Base):
-    __tablename__ = "pytender_money_json_integration"
+    __tablename__ = "moneytender_money_json_integration"
 
     id = Column(Integer, primary_key=True)
     amount = Column(MoneyType, nullable=False)
 
 
 class NativeMoneyRecord(Base):
-    __tablename__ = "pytender_money_native_integration"
+    __tablename__ = "moneytender_money_native_integration"
     id = Column(Integer, primary_key=True)
     amount_minor = Column(MinorUnitsType(38), nullable=False, index=True)
     currency_code = Column(String(3), nullable=False, index=True)
