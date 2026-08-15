@@ -45,11 +45,7 @@ class SimpleMoneyFormatter:
         symbol = money.currency.symbol
         if symbol:
             space = " " if self.symbol_space else ""
-            rendered = (
-                f"{symbol}{space}{number}"
-                if self.symbol_first
-                else f"{number}{space}{symbol}"
-            )
+            rendered = f"{symbol}{space}{number}" if self.symbol_first else f"{number}{space}{symbol}"
         elif self.code_when_symbol_missing:
             rendered = f"{number} {money.currency.code}"
         else:

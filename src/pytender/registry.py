@@ -85,8 +85,7 @@ class CurrencyRegistry:
                     code = CurrencyCode(str(currency.code).upper())
                     if code in seen or code in self._currencies:
                         raise DuplicateCurrencyError(
-                            f"currency {code} is already registered; "
-                            "pass replace=True to override it"
+                            f"currency {code} is already registered; pass replace=True to override it"
                         )
                     seen.add(code)
             for currency in batch:

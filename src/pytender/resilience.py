@@ -226,8 +226,7 @@ class RetryingRateProvider:
                 f"{base}/{quote}: {last_error}"
             ) from last_error
         raise ProviderError(
-            f"provider failed after {self._policy.attempts} attempts for {base}/{quote}: "
-            f"{last_error}"
+            f"provider failed after {self._policy.attempts} attempts for {base}/{quote}: {last_error}"
         ) from last_error
 
 
@@ -271,8 +270,7 @@ class AsyncRetryingRateProvider:
                 f"{base}/{quote}: {last_error}"
             ) from last_error
         raise ProviderError(
-            f"async provider failed after {self._policy.attempts} attempts for "
-            f"{base}/{quote}: {last_error}"
+            f"async provider failed after {self._policy.attempts} attempts for {base}/{quote}: {last_error}"
         ) from last_error
 
 
@@ -325,11 +323,7 @@ class CircuitBreakerRateProvider:
             if self._opened_at is None:
                 return CircuitSnapshot(CircuitState.CLOSED, self._failures, None)
             opened_for = max(0.0, time.monotonic() - self._opened_at)
-            state = (
-                CircuitState.HALF_OPEN
-                if opened_for >= self._recovery_timeout
-                else CircuitState.OPEN
-            )
+            state = CircuitState.HALF_OPEN if opened_for >= self._recovery_timeout else CircuitState.OPEN
             return CircuitSnapshot(state, self._failures, opened_for)
 
     def get_rate(self, base: CurrencyCode, quote: CurrencyCode) -> ExchangeRate:
@@ -415,11 +409,7 @@ class AsyncCircuitBreakerRateProvider:
             if self._opened_at is None:
                 return CircuitSnapshot(CircuitState.CLOSED, self._failures, None)
             opened_for = max(0.0, time.monotonic() - self._opened_at)
-            state = (
-                CircuitState.HALF_OPEN
-                if opened_for >= self._recovery_timeout
-                else CircuitState.OPEN
-            )
+            state = CircuitState.HALF_OPEN if opened_for >= self._recovery_timeout else CircuitState.OPEN
             return CircuitSnapshot(state, self._failures, opened_for)
 
     async def get_rate(self, base: CurrencyCode, quote: CurrencyCode) -> ExchangeRate:
@@ -509,11 +499,7 @@ class PairCircuitBreakerRateProvider:
                 failures = 0 if entry is None else entry.failures
                 return CircuitSnapshot(CircuitState.CLOSED, failures, None)
             opened_for = max(0.0, time.monotonic() - entry.opened_at)
-            state = (
-                CircuitState.HALF_OPEN
-                if opened_for >= self._recovery_timeout
-                else CircuitState.OPEN
-            )
+            state = CircuitState.HALF_OPEN if opened_for >= self._recovery_timeout else CircuitState.OPEN
             return CircuitSnapshot(state, entry.failures, opened_for)
 
     def get_rate(self, base: CurrencyCode, quote: CurrencyCode) -> ExchangeRate:
@@ -530,8 +516,7 @@ class PairCircuitBreakerRateProvider:
                     )
                 if entry.half_open_probe:
                     raise CircuitOpenError(
-                        f"FX pair circuit for {base}/{quote} is half-open and a probe "
-                        "is already running"
+                        f"FX pair circuit for {base}/{quote} is half-open and a probe is already running"
                     )
                 entry.half_open_probe = True
 
@@ -600,11 +585,7 @@ class AsyncPairCircuitBreakerRateProvider:
                 failures = 0 if entry is None else entry.failures
                 return CircuitSnapshot(CircuitState.CLOSED, failures, None)
             opened_for = max(0.0, time.monotonic() - entry.opened_at)
-            state = (
-                CircuitState.HALF_OPEN
-                if opened_for >= self._recovery_timeout
-                else CircuitState.OPEN
-            )
+            state = CircuitState.HALF_OPEN if opened_for >= self._recovery_timeout else CircuitState.OPEN
             return CircuitSnapshot(state, entry.failures, opened_for)
 
     async def get_rate(self, base: CurrencyCode, quote: CurrencyCode) -> ExchangeRate:
@@ -621,8 +602,7 @@ class AsyncPairCircuitBreakerRateProvider:
                     )
                 if entry.half_open_probe:
                     raise CircuitOpenError(
-                        f"FX pair circuit for {base}/{quote} is half-open and a probe "
-                        "is already running"
+                        f"FX pair circuit for {base}/{quote} is half-open and a probe is already running"
                     )
                 entry.half_open_probe = True
 

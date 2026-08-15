@@ -72,9 +72,11 @@ from pytender import RatePolicy, RatePolicyError
 
 TRUSTED = {"treasury": 100, "bank-a": 80}
 
+
 def require_high_trust(rate):
     if TRUSTED.get(rate.source, 0) < 90:
         raise RatePolicyError(f"source {rate.source!r} is below the required trust level")
+
 
 policy = RatePolicy(validator=require_high_trust)
 ```

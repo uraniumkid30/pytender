@@ -17,9 +17,7 @@ if TYPE_CHECKING:
 def to_decimal(value: DecimalLike) -> Decimal:
     """Normalize safe decimal-like input while explicitly rejecting bool/float."""
     if isinstance(value, (bool, float)):
-        raise InvalidAmountError(
-            "float/bool input is forbidden for money; use str, int, or Decimal"
-        )
+        raise InvalidAmountError("float/bool input is forbidden for money; use str, int, or Decimal")
     try:
         if isinstance(value, Decimal):
             result = value
@@ -136,8 +134,7 @@ class Money:
     def __mul__(self, multiplier: int) -> "Money":
         if isinstance(multiplier, bool) or not isinstance(multiplier, int):
             raise TypeError(
-                "Money multiplication accepts integers only; use multiply_rate() "
-                "for Decimal rates"
+                "Money multiplication accepts integers only; use multiply_rate() for Decimal rates"
             )
         return Money(MinorUnits(self.minor * multiplier), self.currency)
 

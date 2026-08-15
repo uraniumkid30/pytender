@@ -283,9 +283,7 @@ async def test_cancellation_during_retry_sleep_is_not_swallowed() -> None:
 @pytest.mark.asyncio
 async def test_cancellation_while_waiting_for_rate_limit_is_not_swallowed() -> None:
     provider = AsyncRateLimitedRateProvider(
-        AsyncFromSyncProvider(
-            StaticRateProvider({("USD", "EUR"): "1"})
-        ),
+        AsyncFromSyncProvider(StaticRateProvider({("USD", "EUR"): "1"})),
         policy=RateLimitPolicy(rate_per_second=0.01, burst=1),
     )
     await provider.get_rate(USD, EUR)
@@ -316,17 +314,13 @@ def test_pair_circuit_validation_and_snapshots() -> None:
     with pytest.raises(ValueError):
         PairCircuitBreakerRateProvider(StaticRateProvider({}), failure_threshold=0)
     with pytest.raises(ValueError):
-        PairCircuitBreakerRateProvider(
-            StaticRateProvider({}), recovery_timeout_seconds=0
-        )
+        PairCircuitBreakerRateProvider(StaticRateProvider({}), recovery_timeout_seconds=0)
 
     class Down:
         def get_rate(self, base: CurrencyCode, quote: CurrencyCode) -> ExchangeRate:
             raise ProviderError("down")
 
-    breaker = PairCircuitBreakerRateProvider(
-        Down(), failure_threshold=1, recovery_timeout_seconds=0.001
-    )
+    breaker = PairCircuitBreakerRateProvider(Down(), failure_threshold=1, recovery_timeout_seconds=0.001)
     assert breaker.snapshot(USD, EUR).state.value == "closed"
     with pytest.raises(ProviderError):
         breaker.get_rate(USD, EUR)
@@ -350,9 +344,7 @@ async def test_async_pair_circuit_validation_and_snapshots() -> None:
         async def get_rate(self, base: CurrencyCode, quote: CurrencyCode) -> ExchangeRate:
             raise ProviderError("down")
 
-    breaker = AsyncPairCircuitBreakerRateProvider(
-        Down(), failure_threshold=1, recovery_timeout_seconds=0.001
-    )
+    breaker = AsyncPairCircuitBreakerRateProvider(Down(), failure_threshold=1, recovery_timeout_seconds=0.001)
     assert (await breaker.snapshot(USD, EUR)).state.value == "closed"
     with pytest.raises(ProviderError):
         await breaker.get_rate(USD, EUR)
@@ -392,9 +384,7 @@ def test_production_builder_exercises_fallback_rate_limit_audit_and_observer() -
         audit_sink=Sink(),
         observer=Observer(),
     )
-    assert converter.convert(Money.from_major("1", "USD"), "EUR") == Money.from_major(
-        "0.90", "EUR"
-    )
+    assert converter.convert(Money.from_major("1", "USD"), "EUR") == Money.from_major("0.90", "EUR")
     assert records
     assert events[-1].succeeded
 

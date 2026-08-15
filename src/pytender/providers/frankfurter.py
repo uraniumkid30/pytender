@@ -14,9 +14,7 @@ from ..types import CurrencyCode
 try:
     import httpx
 except ImportError as exc:  # pragma: no cover
-    raise ImportError(
-        "Frankfurter providers require PyTender[http]: pip install 'PyTender[http]'"
-    ) from exc
+    raise ImportError("Frankfurter providers require PyTender[http]: pip install 'PyTender[http]'") from exc
 
 _API = "https://api.frankfurter.dev"
 
@@ -40,9 +38,7 @@ def _build(data: dict[str, Any], source_uri: str) -> ExchangeRate:
             tzinfo=UTC,
         )
     except (KeyError, ValueError, TypeError) as exc:
-        raise ProviderError(
-            "Frankfurter response is missing valid base/quote/rate/date fields"
-        ) from exc
+        raise ProviderError("Frankfurter response is missing valid base/quote/rate/date fields") from exc
     return ExchangeRate(base, quote, value, RateProvenance("frankfurter", source_uri, as_of))
 
 

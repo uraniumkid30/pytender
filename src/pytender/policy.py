@@ -151,4 +151,3 @@ class RatePolicy:
                 f"rate timestamp {reference_time.isoformat()} is unexpectedly in the future "
                 f"relative to {current.isoformat()}"
             )
-

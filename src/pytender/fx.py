@@ -3,7 +3,6 @@ from __future__ import annotations
 import asyncio
 from collections import OrderedDict
 from collections.abc import Mapping
-from collections.abc import Mapping
 from concurrent.futures import Future
 from dataclasses import dataclass, field
 from datetime import UTC, datetime, timedelta
@@ -25,9 +24,7 @@ from .types import Currency, CurrencyCode, MinorUnits
 def _normalize_currency_code(value: str | CurrencyCode) -> CurrencyCode:
     code = str(value).upper()
     if len(code) != 3 or not code.isalpha():
-        raise InvalidRateError(
-            f"currency code must be exactly three alphabetic characters, got {value!r}"
-        )
+        raise InvalidRateError(f"currency code must be exactly three alphabetic characters, got {value!r}")
     return CurrencyCode(code)
 
 
@@ -102,9 +99,7 @@ class ExchangeRate:
                 "use DerivationKind.INVERSE, TRIANGULATION, or CUSTOM"
             )
         if self.kind is not RateKind.DERIVED and self.derivation is not DerivationKind.NONE:
-            raise InvalidRateError(
-                "non-derived exchange rates must use DerivationKind.NONE"
-            )
+            raise InvalidRateError("non-derived exchange rates must use DerivationKind.NONE")
 
         metadata_derivation = self.provenance.metadata.get("derived")
         if metadata_derivation and metadata_derivation != self.derivation.value:
@@ -167,9 +162,7 @@ class StaticRateProvider:
             try:
                 rate = value if isinstance(value, Decimal) else Decimal(value)
             except (InvalidOperation, ValueError) as exc:
-                raise InvalidRateError(
-                    f"invalid rate for {base}/{quote}: {value!r}"
-                ) from exc
+                raise InvalidRateError(f"invalid rate for {base}/{quote}: {value!r}") from exc
             if not rate.is_finite() or rate <= 0:
                 raise InvalidRateError(f"invalid rate for {base}/{quote}: {value!r}")
             key = (_normalize_currency_code(base), _normalize_currency_code(quote))
@@ -195,9 +188,7 @@ class StaticRateProvider:
 class AsyncFromSyncProvider:
     """Adapt only cheap non-blocking sync providers to the async protocol."""
 
-    __slots__ = (
-        "_inner",
-    )
+    __slots__ = ("_inner",)
 
     def __init__(self, inner: ExchangeRateProvider) -> None:
         self._inner = inner
@@ -248,9 +239,7 @@ class AsyncPolicyRateProvider:
 class InverseRateProvider:
     """Try direct lookup, then derive the reciprocal from the reverse pair."""
 
-    __slots__ = (
-        "_inner",
-    )
+    __slots__ = ("_inner",)
 
     def __init__(self, inner: ExchangeRateProvider) -> None:
         self._inner = inner
@@ -291,9 +280,7 @@ class InverseRateProvider:
 class AsyncInverseRateProvider:
     """Async reciprocal-rate decorator."""
 
-    __slots__ = (
-        "_inner",
-    )
+    __slots__ = ("_inner",)
 
     def __init__(self, inner: AsyncExchangeRateProvider) -> None:
         self._inner = inner
@@ -464,9 +451,7 @@ class ChainedRateProvider:
     for authoritative pair unavailability.
     """
 
-    __slots__ = (
-        "_providers",
-    )
+    __slots__ = ("_providers",)
 
     def __init__(self, *providers: ExchangeRateProvider) -> None:
         if not providers:
@@ -488,20 +473,14 @@ class ChainedRateProvider:
 
         detail = f"failures: {'; '.join(failures)}"
         if operational_failure:
-            raise ProviderError(
-                f"no configured provider could safely price {base}/{quote}; {detail}"
-            )
-        raise RateUnavailableError(
-            f"no configured provider could supply {base}/{quote}; {detail}"
-        )
+            raise ProviderError(f"no configured provider could safely price {base}/{quote}; {detail}")
+        raise RateUnavailableError(f"no configured provider could supply {base}/{quote}; {detail}")
 
 
 class AsyncChainedRateProvider:
     """Async ordered provider failover."""
 
-    __slots__ = (
-        "_providers",
-    )
+    __slots__ = ("_providers",)
 
     def __init__(self, *providers: AsyncExchangeRateProvider) -> None:
         if not providers:
@@ -523,12 +502,8 @@ class AsyncChainedRateProvider:
 
         detail = f"failures: {'; '.join(failures)}"
         if operational_failure:
-            raise ProviderError(
-                f"no configured async provider could safely price {base}/{quote}; {detail}"
-            )
-        raise RateUnavailableError(
-            f"no configured async provider could supply {base}/{quote}; {detail}"
-        )
+            raise ProviderError(f"no configured async provider could safely price {base}/{quote}; {detail}")
+        raise RateUnavailableError(f"no configured async provider could supply {base}/{quote}; {detail}")
 
 
 class CachedRateProvider:
@@ -566,9 +541,9 @@ class CachedRateProvider:
         self._ttl = ttl_seconds
         self._maxsize = maxsize
         self._stale_if_error = stale_if_error_seconds
-        self._cache: OrderedDict[
-            tuple[CurrencyCode, CurrencyCode], tuple[float, ExchangeRate]
-        ] = OrderedDict()
+        self._cache: OrderedDict[tuple[CurrencyCode, CurrencyCode], tuple[float, ExchangeRate]] = (
+            OrderedDict()
+        )
         self._lock = RLock()
         self._inflight: dict[tuple[CurrencyCode, CurrencyCode], Future[ExchangeRate]] = {}
 
@@ -665,13 +640,11 @@ class AsyncCachedRateProvider:
         self._ttl = ttl_seconds
         self._maxsize = maxsize
         self._stale_if_error = stale_if_error_seconds
-        self._cache: OrderedDict[
-            tuple[CurrencyCode, CurrencyCode], tuple[float, ExchangeRate]
-        ] = OrderedDict()
+        self._cache: OrderedDict[tuple[CurrencyCode, CurrencyCode], tuple[float, ExchangeRate]] = (
+            OrderedDict()
+        )
         self._lock = asyncio.Lock()
-        self._inflight: dict[
-            tuple[CurrencyCode, CurrencyCode], asyncio.Future[ExchangeRate]
-        ] = {}
+        self._inflight: dict[tuple[CurrencyCode, CurrencyCode], asyncio.Future[ExchangeRate]] = {}
 
     @property
     def size(self) -> int:
@@ -815,8 +788,7 @@ class MoneyConverter:
         """
         if rate.base != money.currency.code:
             raise InvalidRateError(
-                f"stored rate base {rate.base} does not match money currency "
-                f"{money.currency.code}"
+                f"stored rate base {rate.base} does not match money currency {money.currency.code}"
             )
         target = self._registry.get(rate.quote)
         _validate_pair(rate, money.currency.code, target.code)
@@ -891,8 +863,7 @@ class AsyncMoneyConverter:
         """Replay a stored quote without performing asynchronous provider I/O."""
         if rate.base != money.currency.code:
             raise InvalidRateError(
-                f"stored rate base {rate.base} does not match money currency "
-                f"{money.currency.code}"
+                f"stored rate base {rate.base} does not match money currency {money.currency.code}"
             )
         target = self._registry.get(rate.quote)
         _validate_pair(rate, money.currency.code, target.code)
@@ -991,8 +962,7 @@ def _validate_pair(
 ) -> None:
     if rate.base != expected_base or rate.quote != expected_quote:
         raise InvalidRateError(
-            f"provider returned {rate.base}/{rate.quote} while "
-            f"{expected_base}/{expected_quote} was requested"
+            f"provider returned {rate.base}/{rate.quote} while {expected_base}/{expected_quote} was requested"
         )
 
 
@@ -1007,22 +977,13 @@ def _apply_rate(
         rate_digits = len(rate.value.as_tuple().digits)
         precision = max(
             34,
-            amount_digits
-            + rate_digits
-            + target.exponent
-            + money.currency.exponent
-            + 8,
+            amount_digits + rate_digits + target.exponent + money.currency.exponent + 8,
         )
         with localcontext() as context:
             context.prec = precision
             target_minor = (
-                Decimal(money.minor)
-                * rate.value
-                * Decimal(target.factor)
-                / Decimal(money.currency.factor)
+                Decimal(money.minor) * rate.value * Decimal(target.factor) / Decimal(money.currency.factor)
             )
     except (InvalidOperation, ArithmeticError) as exc:
-        raise InvalidRateError(
-            f"rate {rate.value!r} could not convert {rate.base}/{rate.quote}"
-        ) from exc
+        raise InvalidRateError(f"rate {rate.value!r} could not convert {rate.base}/{rate.quote}") from exc
     return Money(MinorUnits(rounding.quantize_minor(target_minor)), target)

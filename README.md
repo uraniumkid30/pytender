@@ -52,9 +52,9 @@ Implement one structural protocol; inheritance is not required:
 ```python
 from pytender import CurrencyCode, ExchangeRate
 
+
 class MyRates:
-    def get_rate(self, base: CurrencyCode, quote: CurrencyCode) -> ExchangeRate:
-        ...
+    def get_rate(self, base: CurrencyCode, quote: CurrencyCode) -> ExchangeRate: ...
 ```
 
 Read [Provider authoring](docs/PROVIDERS.md).

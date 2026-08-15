@@ -47,6 +47,7 @@ def test_async_triangulation():
             pivots=("USD",),
         )
         return await provider.get_rate(CurrencyCode("NGN"), CurrencyCode("EUR"))
+
     assert asyncio.run(run()).value == Decimal("0.0005915")
 
 
@@ -54,6 +55,7 @@ def test_converter_rejects_provider_wrong_pair():
     class BrokenProvider:
         def get_rate(self, base, quote):
             return ExchangeRate(CurrencyCode("EUR"), CurrencyCode("GBP"), Decimal("1"))
+
     with pytest.raises(InvalidRateError, match="provider returned"):
         MoneyConverter(BrokenProvider()).convert(Money.from_minor(100, "USD"), "EUR")
 
@@ -62,18 +64,18 @@ def test_sync_cache_single_flight():
     class CountingProvider:
         def __init__(self):
             self.calls = 0
+
         def get_rate(self, base, quote):
             self.calls += 1
             time.sleep(0.03)
             return ExchangeRate(base, quote, Decimal("1.2"))
+
     inner = CountingProvider()
     cached = CachedRateProvider(inner, ttl_seconds=10)
     results = []
     threads = [
         threading.Thread(
-            target=lambda: results.append(
-                cached.get_rate(CurrencyCode("USD"), CurrencyCode("EUR"))
-            )
+            target=lambda: results.append(cached.get_rate(CurrencyCode("USD"), CurrencyCode("EUR")))
         )
         for _ in range(12)
     ]
@@ -89,20 +91,18 @@ def test_async_cache_single_flight():
     class Provider:
         def __init__(self):
             self.calls = 0
+
         async def get_rate(self, base, quote):
             self.calls += 1
             await asyncio.sleep(0.02)
             return ExchangeRate(base, quote, Decimal("1.2"))
+
     async def run():
         inner = Provider()
         cached = AsyncCachedRateProvider(inner, ttl_seconds=10)
-        await asyncio.gather(
-            *(
-                cached.get_rate(CurrencyCode("USD"), CurrencyCode("EUR"))
-                for _ in range(12)
-            )
-        )
+        await asyncio.gather(*(cached.get_rate(CurrencyCode("USD"), CurrencyCode("EUR")) for _ in range(12)))
         return inner.calls
+
     assert asyncio.run(run()) == 1
 
 

@@ -62,10 +62,10 @@ from ..resilience import (
     CircuitSnapshot,
     CircuitState,
     PairCircuitBreakerRateProvider,
-    RateLimitPolicy,
     RateLimitedRateProvider,
-    RetryPolicy,
+    RateLimitPolicy,
     RetryingRateProvider,
+    RetryPolicy,
 )
 
 __all__ = [

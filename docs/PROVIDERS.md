@@ -7,13 +7,13 @@ You can add your own provider without inheriting from a PyTender base class. Sat
 ```python
 from pytender import CurrencyCode, ExchangeRate
 
+
 class ExchangeRateProvider:
-    def get_rate(self, base: CurrencyCode, quote: CurrencyCode) -> ExchangeRate:
-        ...
+    def get_rate(self, base: CurrencyCode, quote: CurrencyCode) -> ExchangeRate: ...
+
 
 class AsyncExchangeRateProvider:
-    async def get_rate(self, base: CurrencyCode, quote: CurrencyCode) -> ExchangeRate:
-        ...
+    async def get_rate(self, base: CurrencyCode, quote: CurrencyCode) -> ExchangeRate: ...
 ```
 
 The actual protocols are available from both `pytender` and `pytender.providers`.
@@ -40,6 +40,7 @@ PyTender validates returned pairs before conversion and can apply an explicit `R
 from datetime import datetime, timezone
 from decimal import Decimal
 from pytender import CurrencyCode, ExchangeRate, RateKind, RateProvenance
+
 
 class TreasuryProvider:
     def get_rate(self, base: CurrencyCode, quote: CurrencyCode) -> ExchangeRate:

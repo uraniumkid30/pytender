@@ -48,7 +48,5 @@ class MoneyField(models.JSONField):
         if isinstance(value, Money):
             value = dict(to_dict(value))
         elif value is not None and not isinstance(value, dict):
-            raise django_exceptions.ValidationError(
-                "MoneyField expects Money, dict, or None"
-            )
+            raise django_exceptions.ValidationError("MoneyField expects Money, dict, or None")
         return super().get_prep_value(value)

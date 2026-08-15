@@ -31,10 +31,10 @@ from ..resilience import (
     AsyncRateLimitedRateProvider,
     AsyncRetryingRateProvider,
     CircuitBreakerRateProvider,
-    RateLimitPolicy,
     RateLimitedRateProvider,
-    RetryPolicy,
+    RateLimitPolicy,
     RetryingRateProvider,
+    RetryPolicy,
 )
 
 __all__ = [
