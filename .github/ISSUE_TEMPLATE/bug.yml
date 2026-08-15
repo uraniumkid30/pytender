@@ -1,0 +1,15 @@
+name: Bug report
+description: Report incorrect behavior or monetary correctness issue
+body:
+  - type: textarea
+    attributes: {label: Description, description: What happened and what did you expect?}
+    validations: {required: true}
+  - type: textarea
+    attributes: {label: Minimal reproduction, description: Provide the smallest runnable example using strings/Decimal, never secrets.}
+    validations: {required: true}
+  - type: input
+    attributes: {label: PyTender version}
+    validations: {required: true}
+  - type: input
+    attributes: {label: Python version}
+    validations: {required: true}

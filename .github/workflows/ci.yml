@@ -1,0 +1,89 @@
+name: CI
+on:
+  push:
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  test:
+    name: Python ${{ matrix.python-version }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.11", "3.12", "3.13", "3.14"]
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: pip
+      - run: python -m pip install --upgrade pip
+      - run: python -m pip install -e '.[dev]'
+      - run: pytest --cov --cov-report=term-missing
+      - run: ruff check .
+      - run: ruff format --check .
+      - run: mypy src/pytender
+
+  database-integration:
+    name: SQLAlchemy integration (${{ matrix.database }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        database: [sqlite, postgres, mysql]
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: pytender
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d pytender"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+      mysql:
+        image: mysql:8.4
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: pytender
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd "mysqladmin ping -h localhost -proot"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 10
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.13"
+          cache: pip
+      - run: python -m pip install --upgrade pip
+      - run: python -m pip install -e '.[sqlalchemy]' 'psycopg[binary]>=3.2,<4' 'PyMySQL>=1.1,<2' pytest
+      - name: Select database URL
+        shell: bash
+        run: |
+          case "${{ matrix.database }}" in
+            sqlite) echo "PYTENDER_DATABASE_URL=sqlite+pysqlite:///pytender-ci.db" >> "$GITHUB_ENV" ;;
+            postgres) echo "PYTENDER_DATABASE_URL=postgresql+psycopg://postgres:postgres@127.0.0.1:5432/pytender" >> "$GITHUB_ENV" ;;
+            mysql) echo "PYTENDER_DATABASE_URL=mysql+pymysql://root:root@127.0.0.1:3306/pytender" >> "$GITHUB_ENV" ;;
+          esac
+      - run: pytest tests/integration/test_sqlalchemy_databases.py -q
+
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with: {python-version: "3.14"}
+      - run: python -m pip install build twine
+      - run: python -m build
+      - run: twine check dist/*
+      - uses: actions/upload-artifact@v7
+        with: {name: dist, path: dist/}

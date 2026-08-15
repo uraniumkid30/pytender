@@ -1,0 +1,8 @@
+name: Feature request
+description: Propose a focused extension to PyTender
+body:
+  - type: textarea
+    attributes: {label: Use case, description: Describe the real financial/software problem, not only the proposed API.}
+    validations: {required: true}
+  - type: textarea
+    attributes: {label: Proposed design, description: Explain compatibility, rounding, currency, provider, and dependency implications.}

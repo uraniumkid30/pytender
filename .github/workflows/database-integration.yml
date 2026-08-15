@@ -1,0 +1,68 @@
+name: Database integration
+
+on:
+  pull_request:
+    paths:
+      - "src/pytender/adapters/**"
+      - "tests/integration/**"
+      - ".github/workflows/database-integration.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  postgres:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: pytender
+          POSTGRES_PASSWORD: pytender
+          POSTGRES_DB: pytender
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U pytender"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.13"
+          cache: pip
+      - run: python -m pip install -e '.[dev]' 'psycopg[binary]>=3.2,<4'
+      - run: pytest tests/integration/test_sqlalchemy_databases.py
+        env:
+          PYTENDER_DATABASE_URL: postgresql+psycopg://pytender:pytender@localhost:5432/pytender
+
+  mysql:
+    runs-on: ubuntu-latest
+    services:
+      mysql:
+        image: mysql:8.4
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: pytender
+          MYSQL_USER: pytender
+          MYSQL_PASSWORD: pytender
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd "mysqladmin ping -h localhost -uroot -proot"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 10
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.13"
+          cache: pip
+      - run: python -m pip install -e '.[dev]' 'PyMySQL>=1.1,<2'
+      - run: pytest tests/integration/test_sqlalchemy_databases.py
+        env:
+          PYTENDER_DATABASE_URL: mysql+pymysql://pytender:pytender@127.0.0.1:3306/pytender

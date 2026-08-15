@@ -1,0 +1,120 @@
+"""Opt-in operational FX infrastructure.
+
+The :mod:`pytender` top level intentionally stays small. Import this namespace when
+you need caching, failover, retry, rate limiting, circuit breaking, audit hooks,
+observability, derived-rate decorators, or production composition helpers.
+
+These helpers are dependency-free reference infrastructure, not distributed
+systems. Their cache, limiter and breaker state are process-local. Applications
+may instead wrap PyTender providers with mature third-party resilience libraries.
+"""
+
+from ..fx import (
+    AsyncCachedRateProvider,
+    AsyncChainedRateProvider,
+    AsyncFromSyncProvider,
+    AsyncInverseRateProvider,
+    AsyncPolicyRateProvider,
+    AsyncTriangulatingRateProvider,
+    CachedRateProvider,
+    ChainedRateProvider,
+    InverseRateProvider,
+    PolicyRateProvider,
+    TriangulatingRateProvider,
+)
+from ..observability import (
+    AsyncAuditedRateProvider,
+    AsyncObservedRateProvider,
+    AsyncProviderObserver,
+    AsyncRateAuditSink,
+    AuditedRateProvider,
+    HookFailureMode,
+    ObservedRateProvider,
+    ProviderEvent,
+    ProviderObserver,
+    RateAuditRecord,
+    RateAuditSink,
+)
+from ..plugins import (
+    FX_PROVIDER_GROUP,
+    ProviderFactory,
+    discover_provider_plugins,
+    load_provider_plugin,
+)
+from ..presets import (
+    CircuitScope,
+    ProductionProviderConfig,
+    build_async_production_converter,
+    build_async_production_provider,
+    build_production_converter,
+    build_production_provider,
+    checkout_policy,
+    display_policy,
+    reporting_policy,
+    treasury_policy,
+)
+from ..resilience import (
+    AsyncCircuitBreakerRateProvider,
+    AsyncPairCircuitBreakerRateProvider,
+    AsyncRateLimitedRateProvider,
+    AsyncRetryingRateProvider,
+    CircuitBreakerRateProvider,
+    CircuitSnapshot,
+    CircuitState,
+    PairCircuitBreakerRateProvider,
+    RateLimitPolicy,
+    RateLimitedRateProvider,
+    RetryPolicy,
+    RetryingRateProvider,
+)
+
+__all__ = [
+    "AsyncAuditedRateProvider",
+    "AsyncCachedRateProvider",
+    "AsyncChainedRateProvider",
+    "AsyncCircuitBreakerRateProvider",
+    "AsyncFromSyncProvider",
+    "AsyncInverseRateProvider",
+    "AsyncObservedRateProvider",
+    "AsyncPairCircuitBreakerRateProvider",
+    "AsyncPolicyRateProvider",
+    "AsyncProviderObserver",
+    "AsyncRateAuditSink",
+    "AsyncRateLimitedRateProvider",
+    "AsyncRetryingRateProvider",
+    "AsyncTriangulatingRateProvider",
+    "AuditedRateProvider",
+    "CachedRateProvider",
+    "ChainedRateProvider",
+    "CircuitBreakerRateProvider",
+    "CircuitScope",
+    "CircuitSnapshot",
+    "CircuitState",
+    "FX_PROVIDER_GROUP",
+    "HookFailureMode",
+    "InverseRateProvider",
+    "ObservedRateProvider",
+    "PairCircuitBreakerRateProvider",
+    "PolicyRateProvider",
+    "ProductionProviderConfig",
+    "ProviderEvent",
+    "ProviderFactory",
+    "ProviderObserver",
+    "RateAuditRecord",
+    "RateAuditSink",
+    "RateLimitPolicy",
+    "RateLimitedRateProvider",
+    "RetryPolicy",
+    "RetryingRateProvider",
+    "TriangulatingRateProvider",
+    "build_async_production_converter",
+    "build_async_production_provider",
+    "build_production_converter",
+    "build_production_provider",
+    "checkout_policy",
+    "discover_provider_plugins",
+    "display_policy",
+    "load_provider_plugin",
+    "reporting_policy",
+    "treasury_policy",
+]

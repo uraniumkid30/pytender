@@ -1,0 +1,86 @@
+[build-system]
+requires = ["setuptools>=77"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "PyTender"
+dynamic = ["version"]
+description = "Strict, typed, integer-minor-unit money values with pluggable sync/async FX conversion for Python."
+readme = "README.md"
+requires-python = ">=3.11"
+license = {text = "MIT"}
+authors = [{name = "PyTender contributors"}]
+# Add [project.urls] after creating the public repository so PyPI can verify the real links.
+keywords = ["money", "currency", "finance", "payments", "fx", "decimal", "iso4217"]
+classifiers = [
+  "Development Status :: 4 - Beta",
+  "Intended Audience :: Developers",
+  "License :: OSI Approved :: MIT License",
+  "Operating System :: OS Independent",
+  "Programming Language :: Python :: 3 :: Only",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+  "Programming Language :: Python :: 3.14",
+  "Topic :: Office/Business :: Financial",
+  "Topic :: Software Development :: Libraries :: Python Modules",
+  "Typing :: Typed",
+]
+dependencies = []
+
+[project.optional-dependencies]
+http = ["httpx>=0.27,<1"]
+pydantic = ["pydantic>=2.7,<3"]
+django = ["Django>=5.2,<7"]
+sqlalchemy = ["SQLAlchemy>=2.0,<3"]
+babel = ["Babel>=2.15,<3"]
+adapters = ["pydantic>=2.7,<3", "Django>=5.2,<7", "SQLAlchemy>=2.0,<3"]
+dev = [
+  "pytest>=8,<10", "pytest-cov>=5,<8", "pytest-asyncio>=0.24,<2", "hypothesis>=6.100,<7", "pytest-benchmark>=5,<6",
+  "mypy>=1.10,<2", "ruff>=0.12,<1", "build>=1.2,<2", "twine>=5,<7",
+  "httpx>=0.27,<1", "pydantic>=2.7,<3", "Django>=5.2,<7", "SQLAlchemy>=2.0,<3", "Babel>=2.15,<3",
+]
+
+[tool.setuptools.dynamic]
+version = {attr = "pytender._version.__version__"}
+[tool.setuptools.packages.find]
+where = ["src"]
+[tool.setuptools.package-data]
+pytender = ["py.typed"]
+
+[tool.pytest.ini_options]
+addopts = "-ra --strict-markers --strict-config"
+testpaths = ["tests"]
+markers = ["network: tests requiring real network access"]
+
+[tool.coverage.run]
+branch = true
+source = [
+  "pytender.money",
+  "pytender.types",
+  "pytender.registry",
+  "pytender.rounding",
+  "pytender.serialization",
+  "pytender.formatting",
+  "pytender.policy",
+  "pytender.adapters.database",
+]
+
+[tool.coverage.report]
+show_missing = true
+fail_under = 98
+exclude_also = ["if TYPE_CHECKING:", "pragma: no cover"]
+
+[tool.ruff]
+line-length = 110
+target-version = "py311"
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP", "SIM", "C4", "RUF"]
+ignore = []
+
+[tool.mypy]
+python_version = "3.11"
+strict = true
+warn_unused_ignores = true
+warn_redundant_casts = true
+packages = ["pytender"]
