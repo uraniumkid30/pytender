@@ -1,4 +1,5 @@
 name: Publish to PyPI
+
 on:
   release:
     types: [published]
@@ -7,6 +8,7 @@ permissions:
 jobs:
   build:
     runs-on: ubuntu-latest
+    environment: pypi
     steps:
       - uses: actions/checkout@v6
         with: {ref: "${{ github.event.release.tag_name }}"}
@@ -16,7 +18,7 @@ jobs:
         run: |
           python - <<'PY'
           import re, pathlib, os
-          text=pathlib.Path('src/pytender/_version.py').read_text()
+          text=pathlib.Path('src/moneytender/_version.py').read_text()
           version=re.search(r"__version__ = ['\"]([^'\"]+)", text).group(1)
           tag=os.environ['TAG']
           assert tag == f'v{version}', f'{tag=} does not match v{version}'

@@ -1,6 +1,6 @@
 # Contributing
 
-Thank you for improving PyTender. Financial primitives need conservative changes and excellent tests.
+Thank you for improving MoneyTender. Financial primitives need conservative changes and excellent tests.
 
 ## Setup
 
@@ -11,14 +11,14 @@ python -m pip install -e '.[dev]'
 pytest
 ruff check .
 ruff format --check .
-mypy src/pytender
+mypy src/moneytender
 ```
 
 ## Expectations
 
 Keep core dependency-free. Preserve explicit currency conversion and float rejection. Add unit tests plus property tests for arithmetic invariants. Add adapter tests for optional integrations. Document public API behavior. Prefer small protocols and composition over global hooks or vendor conditionals.
 
-Bug fixes should include a regression test. New FX vendors belong under `pytender.providers` or a separate plugin package and must not be imported by core.
+Bug fixes should include a regression test. New FX vendors belong under `moneytender.providers` or a separate plugin package and must not be imported by core.
 
 ## Compatibility
 

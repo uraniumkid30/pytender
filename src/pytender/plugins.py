@@ -6,7 +6,7 @@ from typing import Any, Protocol, runtime_checkable
 from .exceptions import ProviderError
 from .fx import ExchangeRateProvider
 
-FX_PROVIDER_GROUP = "pytender.fx_providers"
+FX_PROVIDER_GROUP = "moneytender.fx_providers"
 
 
 @runtime_checkable
@@ -35,7 +35,9 @@ def load_provider_plugin(name: str, **config: Any) -> ExchangeRateProvider:
         factory = ep.load()
         provider = factory(**config)
     except Exception as exc:
-        raise ProviderError(f"FX provider plugin {name!r} failed to initialize: {exc}") from exc
+        raise ProviderError(
+            f"FX provider plugin {name!r} failed to initialize: {exc}"
+        ) from exc
     if not isinstance(provider, ExchangeRateProvider):
         raise ProviderError(
             f"FX provider plugin {name!r} returned {type(provider).__name__}, "

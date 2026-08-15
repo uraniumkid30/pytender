@@ -1,14 +1,14 @@
 .PHONY: test lint typecheck quality bench build clean
 
 test:
-	pytest --cov=pytender --cov-report=term-missing
+	pytest --cov=moneytender --cov-report=term-missing
 
 lint:
 	ruff check .
 	ruff format --check .
 
 typecheck:
-	mypy src/pytender
+	mypy src/moneytender
 
 quality: lint typecheck test
 

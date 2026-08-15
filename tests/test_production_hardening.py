@@ -6,7 +6,7 @@ from decimal import Decimal, getcontext
 
 import pytest
 
-from pytender import (
+from moneytender import (
     DEFAULT_REGISTRY,
     AsyncMoneyConverter,
     CircuitOpenError,
@@ -27,7 +27,7 @@ from pytender import (
     StaleRateError,
     StaticRateProvider,
 )
-from pytender.infrastructure import (
+from moneytender.infrastructure import (
     AsyncCachedRateProvider,
     AsyncFromSyncProvider,
     AsyncRetryingRateProvider,
@@ -86,7 +86,9 @@ def test_rate_policy_rejects_unapproved_provider_and_kind() -> None:
         executable_only.validate(_rate(kind=RateKind.REFERENCE))
 
 
-def test_triangulated_rate_is_explicitly_derived_and_policy_rejects_by_default() -> None:
+def test_triangulated_rate_is_explicitly_derived_and_policy_rejects_by_default() -> (
+    None
+):
     provider = TriangulatingRateProvider(
         StaticRateProvider(
             {
@@ -179,7 +181,9 @@ def test_stale_cache_fallback_is_opt_in_and_only_for_provider_failure() -> None:
         def get_rate(self, base: CurrencyCode, quote: CurrencyCode) -> ExchangeRate:
             self.calls += 1
             if self.calls == 1:
-                return ExchangeRate(base, quote, Decimal("1.1"), RateProvenance("flaky"))
+                return ExchangeRate(
+                    base, quote, Decimal("1.1"), RateProvenance("flaky")
+                )
             raise ProviderError("temporary outage")
 
     provider = FlakyProvider()
@@ -197,7 +201,9 @@ def test_stale_cache_fallback_is_opt_in_and_only_for_provider_failure() -> None:
     assert second.provenance.metadata["cache_status"] == "stale_fallback"
 
 
-def test_retry_provider_retries_provider_errors_but_not_unavailable_by_default() -> None:
+def test_retry_provider_retries_provider_errors_but_not_unavailable_by_default() -> (
+    None
+):
     class Flaky:
         calls = 0
 
@@ -241,7 +247,9 @@ def test_chain_fails_over_after_provider_operational_failure() -> None:
 
     fallback = StaticRateProvider({("USD", "EUR"): "0.9"})
     chain = ChainedRateProvider(Down(), fallback)
-    assert chain.get_rate(CurrencyCode("USD"), CurrencyCode("EUR")).value == Decimal("0.9")
+    assert chain.get_rate(CurrencyCode("USD"), CurrencyCode("EUR")).value == Decimal(
+        "0.9"
+    )
 
 
 def test_audit_decorator_records_successful_quote() -> None:
@@ -280,7 +288,9 @@ def test_extreme_decimal_inputs_are_rejected_or_converted_deterministically() ->
     previous = getcontext().prec
     try:
         getcontext().prec = 6
-        result = MoneyConverter(HugeProvider()).convert(Money.from_minor(123456789, "USD"), "JPY")
+        result = MoneyConverter(HugeProvider()).convert(
+            Money.from_minor(123456789, "USD"), "JPY"
+        )
     finally:
         getcontext().prec = previous
     assert isinstance(result.minor, int)
@@ -294,7 +304,9 @@ async def test_async_retry_and_cache_waiter_cancellation_do_not_cancel_owner() -
     calls = 0
 
     class Slow:
-        async def get_rate(self, base: CurrencyCode, quote: CurrencyCode) -> ExchangeRate:
+        async def get_rate(
+            self, base: CurrencyCode, quote: CurrencyCode
+        ) -> ExchangeRate:
             nonlocal calls
             calls += 1
             started.set()
@@ -302,9 +314,13 @@ async def test_async_retry_and_cache_waiter_cancellation_do_not_cancel_owner() -
             return ExchangeRate(base, quote, Decimal("1"), RateProvenance("slow"))
 
     cached = AsyncCachedRateProvider(Slow(), ttl_seconds=60)
-    owner = asyncio.create_task(cached.get_rate(CurrencyCode("USD"), CurrencyCode("EUR")))
+    owner = asyncio.create_task(
+        cached.get_rate(CurrencyCode("USD"), CurrencyCode("EUR"))
+    )
     await started.wait()
-    waiter = asyncio.create_task(cached.get_rate(CurrencyCode("USD"), CurrencyCode("EUR")))
+    waiter = asyncio.create_task(
+        cached.get_rate(CurrencyCode("USD"), CurrencyCode("EUR"))
+    )
     await asyncio.sleep(0)
     waiter.cancel()
     with pytest.raises(asyncio.CancelledError):
@@ -316,7 +332,9 @@ async def test_async_retry_and_cache_waiter_cancellation_do_not_cancel_owner() -
     class FlakyAsync:
         calls = 0
 
-        async def get_rate(self, base: CurrencyCode, quote: CurrencyCode) -> ExchangeRate:
+        async def get_rate(
+            self, base: CurrencyCode, quote: CurrencyCode
+        ) -> ExchangeRate:
             self.calls += 1
             if self.calls == 1:
                 raise ProviderError("temporary")
@@ -379,8 +397,10 @@ def test_rate_policy_checks_future_fetched_at_when_used_as_timestamp() -> None:
         policy.validate(rate, now=now)
 
 
-def test_sync_rate_limiter_enforces_local_token_bucket_without_touching_rate_values() -> None:
-    from pytender.infrastructure import RateLimitedRateProvider, RateLimitPolicy
+def test_sync_rate_limiter_enforces_local_token_bucket_without_touching_rate_values() -> (
+    None
+):
+    from moneytender.infrastructure import RateLimitedRateProvider, RateLimitPolicy
 
     now = 0.0
     sleeps: list[float] = []
@@ -409,7 +429,7 @@ def test_sync_rate_limiter_enforces_local_token_bucket_without_touching_rate_val
 
 @pytest.mark.asyncio
 async def test_async_rate_limiter_enforces_local_token_bucket() -> None:
-    from pytender.infrastructure import AsyncRateLimitedRateProvider, RateLimitPolicy
+    from moneytender.infrastructure import AsyncRateLimitedRateProvider, RateLimitPolicy
 
     now = 0.0
     sleeps: list[float] = []
@@ -472,7 +492,7 @@ def test_chain_does_not_misreport_operational_outage_as_pair_unavailability() ->
 
 
 def test_circuit_breaker_exposes_passive_health_snapshot() -> None:
-    from pytender.infrastructure import CircuitState
+    from moneytender.infrastructure import CircuitState
 
     class Down:
         def get_rate(self, base: CurrencyCode, quote: CurrencyCode) -> ExchangeRate:

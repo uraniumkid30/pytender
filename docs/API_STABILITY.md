@@ -1,6 +1,6 @@
 # API stability
 
-PyTender follows Semantic Versioning. Public objects exported from `pytender.__all__`, documented provider protocols, serialized wire fields (`amount`, `currency`), and the relational storage contract (`amount_minor`, `currency_code`) are compatibility commitments.
+MoneyTender follows Semantic Versioning. Public objects exported from `moneytender.__all__`, documented provider protocols, serialized wire fields (`amount`, `currency`), and the relational storage contract (`amount_minor`, `currency_code`) are compatibility commitments.
 
 A breaking release includes changes such as:
 
@@ -11,4 +11,4 @@ A breaking release includes changes such as:
 
 Backward-compatible releases may add currencies, optional providers, adapters, policy helpers, diagnostics, and stricter rejection of inputs that violate an already documented safety invariant.
 
-Operational helpers under `pytender.infrastructure` are optional composition primitives. They do not change `Money` arithmetic and do not introduce mandatory runtime dependencies.
+Operational helpers under `moneytender.infrastructure` are optional composition primitives. They do not change `Money` arithmetic and do not introduce mandatory runtime dependencies.

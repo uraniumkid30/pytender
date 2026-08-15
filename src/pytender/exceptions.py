@@ -2,7 +2,7 @@ from __future__ import annotations
 
 
 class MoneyError(Exception):
-    """Base class for all PyTender-defined errors."""
+    """Base class for all MoneyTender-defined errors."""
 
 
 class InvalidAmountError(MoneyError, ValueError):

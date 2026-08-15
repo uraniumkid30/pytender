@@ -1,17 +1,17 @@
-# PyTender
+# MoneyTender
 
-PyTender is a strict, typed money and FX-policy library for Python. It stores monetary values as **integer minor units**, uses `Decimal` for rates and fractional arithmetic, rejects float monetary input, and keeps currency conversion explicit.
+MoneyTender is a strict, typed money and FX-policy library for Python. It stores monetary values as **integer minor units**, uses `Decimal` for rates and fractional arithmetic, rejects float monetary input, and keeps currency conversion explicit.
 
 The core package has **zero required runtime dependencies**.
 
-> **Operational note:** The money/currency domain is the stable core. Dependency-free operational FX helpers under `pytender.infrastructure` are opt-in and should be validated under your own load and outage conditions before they become a money-moving availability dependency. You may instead wrap PyTender providers with your organization's established resilience libraries.
+> **Operational note:** The money/currency domain is the stable core. Dependency-free operational FX helpers under `moneytender.infrastructure` are opt-in and should be validated under your own load and outage conditions before they become a money-moving availability dependency. You may instead wrap MoneyTender providers with your organization's established resilience libraries.
 
 ## Who should start where?
 
 ### I only need safe money arithmetic
 
 ```python
-from pytender import Money
+from moneytender import Money
 
 price = Money.from_major("19.99", "USD")
 shipping = Money.from_major("4.50", "USD")
@@ -28,7 +28,7 @@ Read the [5-minute quick start](docs/QUICKSTART.md).
 For most teams, start with the safe high-level composition helper instead of hand-ordering infrastructure decorators:
 
 ```python
-from pytender.infrastructure import build_production_converter, checkout_policy
+from moneytender.infrastructure import build_production_converter, checkout_policy
 
 converter = build_production_converter(
     treasury_provider,
@@ -41,7 +41,7 @@ result = converter.convert_with_rate(order_total, "EUR")
 
 This applies provider-local retry/rate-limit/circuit protection, ordered failover, then caching while keeping derived FX disabled. Advanced users can still compose every low-level decorator directly. See the [production sample](docs/PRODUCTION_SAMPLE.md).
 
-> **Distributed systems warning:** PyTender's built-in cache, token bucket and circuit breaker are process-local. Multiple pods/workers do not share those states. Use a central rate service or application-owned distributed coordination when cluster-wide consistency or quota enforcement matters.
+> **Distributed systems warning:** MoneyTender's built-in cache, token bucket and circuit breaker are process-local. Multiple pods/workers do not share those states. Use a central rate service or application-owned distributed coordination when cluster-wide consistency or quota enforcement matters.
 
 Persist `result.rate` when deterministic audit/replay matters. Read [Production FX](docs/PRODUCTION_FX.md), [FX policy](docs/FX_POLICY.md), and [audit storage](docs/AUDIT_STORAGE.md).
 
@@ -50,7 +50,7 @@ Persist `result.rate` when deterministic audit/replay matters. Read [Production 
 Implement one structural protocol; inheritance is not required:
 
 ```python
-from pytender import CurrencyCode, ExchangeRate
+from moneytender import CurrencyCode, ExchangeRate
 
 
 class MyRates:
@@ -65,7 +65,7 @@ Framework adapters are optional extras. JSON-backed ORM adapters are convenience
 
 ## Core guarantees
 
-PyTender deliberately guarantees:
+MoneyTender deliberately guarantees:
 
 - integer minor units are the canonical stored representation;
 - Python `int` amounts are arbitrary precision;
@@ -78,7 +78,7 @@ PyTender deliberately guarantees:
 - `DEFAULT_REGISTRY` is immutable; application overrides use a clone;
 - cash rounding is opt-in and distinct from ledger/card rounding;
 - caches are bounded, process-local, LRU/TTL caches with single-flight protection;
-- optional operational FX helpers live under `pytender.infrastructure`, not the beginner top-level API;
+- optional operational FX helpers live under `moneytender.infrastructure`, not the beginner top-level API;
 - retry, rate-limit and circuit-breaker helpers are dependency-free reference implementations and can be replaced by established infrastructure libraries;
 - cache TTL and business quote freshness are separate concepts;
 - inverse/triangulated rates are marked `DERIVED` and can be rejected by policy;
@@ -95,14 +95,14 @@ EXECUTABLE  provider asserts transaction suitability subject to its terms
 DERIVED     calculated rather than directly quoted; `DerivationKind` records how
 ```
 
-PyTender validates structure and policy. It cannot determine whether an economically supplied quote is actually fair, legal, liquid, or executable. That responsibility remains with the provider and application.
+MoneyTender validates structure and policy. It cannot determine whether an economically supplied quote is actually fair, legal, liquid, or executable. That responsibility remains with the provider and application.
 
 ## Custom currencies and registry overrides
 
 The shared ISO registry is frozen:
 
 ```python
-from pytender import DEFAULT_REGISTRY
+from moneytender import DEFAULT_REGISTRY
 
 registry = DEFAULT_REGISTRY.clone()
 # registry is now application-owned and mutable
@@ -113,17 +113,17 @@ This avoids test pollution and plugin/application mutation of process-wide defau
 ## Install
 
 ```bash
-pip install PyTender
-pip install 'PyTender[http]'
-pip install 'PyTender[pydantic]'
-pip install 'PyTender[django]'
-pip install 'PyTender[sqlalchemy]'
-pip install 'PyTender[babel]'
+pip install MoneyTender
+pip install 'MoneyTender[http]'
+pip install 'MoneyTender[pydantic]'
+pip install 'MoneyTender[django]'
+pip install 'MoneyTender[sqlalchemy]'
+pip install 'MoneyTender[babel]'
 ```
 
 ## Quality gates
 
-PyTender enforces **98% branch-aware coverage on the stable monetary domain** (`Money`, currency metadata/registry, rounding, serialization, formatting, policy, and canonical database payloads). The optional FX infrastructure has its own concurrency, cancellation, failover, cache, circuit-breaker, and sync/async parity tests, but is not allowed to dilute or game the core-domain coverage metric. CI also runs Ruff, Ruff formatting, strict mypy, property tests, database integration tests, package builds, and artifact validation.
+MoneyTender enforces **98% branch-aware coverage on the stable monetary domain** (`Money`, currency metadata/registry, rounding, serialization, formatting, policy, and canonical database payloads). The optional FX infrastructure has its own concurrency, cancellation, failover, cache, circuit-breaker, and sync/async parity tests, but is not allowed to dilute or game the core-domain coverage metric. CI also runs Ruff, Ruff formatting, strict mypy, property tests, database integration tests, package builds, and artifact validation.
 
 ## Documentation
 
@@ -146,9 +146,9 @@ PyTender enforces **98% branch-aware coverage on the stable monetary domain** (`
 - [Contributing](CONTRIBUTING.md)
 - [Security](SECURITY.md)
 
-## What PyTender is not
+## What MoneyTender is not
 
-PyTender is not a payment processor, accounting ledger, tax engine, market-data authority, compliance product, distributed cache, or pricing oracle. See [Ledger boundary](docs/LEDGER_BOUNDARY.md).
+MoneyTender is not a payment processor, accounting ledger, tax engine, market-data authority, compliance product, distributed cache, or pricing oracle. See [Ledger boundary](docs/LEDGER_BOUNDARY.md).
 
 ## License
 

@@ -2,7 +2,7 @@
 
 ## 1.0.0 - 2026-08-15
 
-Initial public release of PyTender.
+Initial public release of MoneyTender.
 
 ### Core monetary domain
 
@@ -28,10 +28,10 @@ Initial public release of PyTender.
 - Ordered provider failover with distinct unavailable-vs-operational failure semantics.
 - Dependency-free retry, local token-bucket rate limiting, provider/pair circuit breakers.
 - Explicit audit/observer fail-open/fail-closed modes.
-- High-level production builders plus low-level composable primitives under `pytender.infrastructure`.
+- High-level production builders plus low-level composable primitives under `moneytender.infrastructure`.
 - Production builder retries each provider before failover; retry scope and worst-case call counts are documented.
 - Sync/async parity and cancellation/fault-injection regression coverage.
 
 ### Release posture
 
-This is PyTender's first public release. The monetary core is the primary stable surface. Operational helpers are opt-in and should be rolled out with application-specific monitoring, fault injection, and capacity/latency validation. PyTender does not replace a ledger, payment processor, market-data authority, distributed cache, or organization-wide resilience platform.
+This is MoneyTender's first public release. The monetary core is the primary stable surface. Operational helpers are opt-in and should be rolled out with application-specific monitoring, fault injection, and capacity/latency validation. MoneyTender does not replace a ledger, payment processor, market-data authority, distributed cache, or organization-wide resilience platform.

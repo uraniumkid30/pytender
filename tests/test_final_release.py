@@ -4,8 +4,8 @@ from decimal import Decimal
 
 import pytest
 
-import pytender
-from pytender import (
+import moneytender
+from moneytender import (
     CurrencyCode,
     DerivationKind,
     ExchangeRate,
@@ -14,7 +14,7 @@ from pytender import (
     RatePolicy,
     RateProvenance,
 )
-from pytender.infrastructure import (
+from moneytender.infrastructure import (
     AsyncFromSyncProvider,
     ProductionProviderConfig,
     RetryPolicy,
@@ -37,9 +37,9 @@ def _rate(value: str = "0.9") -> ExchangeRate:
 
 
 def test_public_version_and_small_top_level_surface() -> None:
-    assert pytender.__version__ == "1.0.0"
-    assert not hasattr(pytender, "RetryingRateProvider")
-    assert not hasattr(pytender, "build_production_provider")
+    assert moneytender.__version__ == "1.0.0"
+    assert not hasattr(moneytender, "RetryingRateProvider")
+    assert not hasattr(moneytender, "build_production_provider")
 
 
 def test_derived_rate_requires_typed_derivation() -> None:
@@ -106,7 +106,7 @@ def test_production_builder_retries_each_provider_before_failover() -> None:
             self.calls = 0
 
         def get_rate(self, base: CurrencyCode, quote: CurrencyCode) -> ExchangeRate:
-            from pytender import ProviderError
+            from moneytender import ProviderError
 
             self.calls += 1
             raise ProviderError("primary down")
@@ -145,8 +145,10 @@ async def test_async_production_builder_matches_sync_retry_failover_semantics() 
         def __init__(self) -> None:
             self.calls = 0
 
-        async def get_rate(self, base: CurrencyCode, quote: CurrencyCode) -> ExchangeRate:
-            from pytender import ProviderError
+        async def get_rate(
+            self, base: CurrencyCode, quote: CurrencyCode
+        ) -> ExchangeRate:
+            from moneytender import ProviderError
 
             self.calls += 1
             raise ProviderError("primary down")
@@ -155,7 +157,9 @@ async def test_async_production_builder_matches_sync_retry_failover_semantics() 
         def __init__(self) -> None:
             self.calls = 0
 
-        async def get_rate(self, base: CurrencyCode, quote: CurrencyCode) -> ExchangeRate:
+        async def get_rate(
+            self, base: CurrencyCode, quote: CurrencyCode
+        ) -> ExchangeRate:
             self.calls += 1
             return _rate()
 
@@ -181,7 +185,7 @@ async def test_async_production_builder_matches_sync_retry_failover_semantics() 
 
 @pytest.mark.asyncio
 async def test_sync_async_simple_provider_contracts_remain_equivalent() -> None:
-    from pytender import StaticRateProvider
+    from moneytender import StaticRateProvider
 
     sync = StaticRateProvider({("USD", "EUR"): "0.9"})
     async_provider = AsyncFromSyncProvider(sync)

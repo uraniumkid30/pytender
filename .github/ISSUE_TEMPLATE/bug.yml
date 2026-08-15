@@ -8,7 +8,7 @@ body:
     attributes: {label: Minimal reproduction, description: Provide the smallest runnable example using strings/Decimal, never secrets.}
     validations: {required: true}
   - type: input
-    attributes: {label: PyTender version}
+    attributes: {label: MoneyTender version}
     validations: {required: true}
   - type: input
     attributes: {label: Python version}

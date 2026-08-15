@@ -6,7 +6,7 @@ from decimal import Decimal
 
 import pytest
 
-from pytender import (
+from moneytender import (
     AsyncExchangeRateProvider,
     Currency,
     CurrencyCode,
@@ -20,8 +20,8 @@ from pytender import (
     SimpleMoneyFormatter,
     StaticRateProvider,
 )
-from pytender.adapters.database import from_columns, to_columns
-from pytender.infrastructure import (
+from moneytender.adapters.database import from_columns, to_columns
+from moneytender.infrastructure import (
     AsyncCachedRateProvider,
     AsyncFromSyncProvider,
     AsyncTriangulatingRateProvider,
@@ -43,7 +43,9 @@ def test_triangulation_and_provenance():
 def test_async_triangulation():
     async def run():
         provider = AsyncTriangulatingRateProvider(
-            AsyncFromSyncProvider(StaticRateProvider({("NGN", "USD"): "0.00065", ("USD", "EUR"): "0.91"})),
+            AsyncFromSyncProvider(
+                StaticRateProvider({("NGN", "USD"): "0.00065", ("USD", "EUR"): "0.91"})
+            ),
             pivots=("USD",),
         )
         return await provider.get_rate(CurrencyCode("NGN"), CurrencyCode("EUR"))
@@ -75,7 +77,9 @@ def test_sync_cache_single_flight():
     results = []
     threads = [
         threading.Thread(
-            target=lambda: results.append(cached.get_rate(CurrencyCode("USD"), CurrencyCode("EUR")))
+            target=lambda: results.append(
+                cached.get_rate(CurrencyCode("USD"), CurrencyCode("EUR"))
+            )
         )
         for _ in range(12)
     ]
@@ -100,7 +104,12 @@ def test_async_cache_single_flight():
     async def run():
         inner = Provider()
         cached = AsyncCachedRateProvider(inner, ttl_seconds=10)
-        await asyncio.gather(*(cached.get_rate(CurrencyCode("USD"), CurrencyCode("EUR")) for _ in range(12)))
+        await asyncio.gather(
+            *(
+                cached.get_rate(CurrencyCode("USD"), CurrencyCode("EUR"))
+                for _ in range(12)
+            )
+        )
         return inner.calls
 
     assert asyncio.run(run()) == 1
@@ -128,7 +137,10 @@ def test_historical_currency_metadata_remains_representable():
 def test_relational_columns_contract_roundtrip():
     money = Money.from_minor(123456789012345678901234567890, "USD")
     columns = to_columns(money)
-    assert columns == {"amount_minor": 123456789012345678901234567890, "currency_code": "USD"}
+    assert columns == {
+        "amount_minor": 123456789012345678901234567890,
+        "currency_code": "USD",
+    }
     assert from_columns(**columns) == money
 
 
@@ -139,8 +151,8 @@ def test_deterministic_formatter_and_negative_symbol():
 
 
 def test_provider_protocols_are_discoverable_from_provider_namespace():
-    from pytender.providers import AsyncExchangeRateProvider as AsyncP
-    from pytender.providers import ExchangeRateProvider as SyncP
+    from moneytender.providers import AsyncExchangeRateProvider as AsyncP
+    from moneytender.providers import ExchangeRateProvider as SyncP
 
     assert SyncP is ExchangeRateProvider
     assert AsyncP is AsyncExchangeRateProvider

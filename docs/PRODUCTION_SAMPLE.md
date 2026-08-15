@@ -1,13 +1,13 @@
 # Production FX sample: simple first, explicit when needed
 
-PyTender has two intentionally different usage levels.
+MoneyTender has two intentionally different usage levels.
 
 ## Level 1: safe money arithmetic
 
 You do **not** need to understand FX infrastructure to use `Money`:
 
 ```python
-from pytender import Money
+from moneytender import Money
 
 total = Money.from_major("19.99", "USD") + Money.from_major("4.50", "USD")
 ```
@@ -17,7 +17,7 @@ total = Money.from_major("19.99", "USD") + Money.from_major("4.50", "USD")
 Use the high-level builder so decorator order is not a prerequisite for safe adoption:
 
 ```python
-from pytender.infrastructure import (
+from moneytender.infrastructure import (
     ProductionProviderConfig,
     RateLimitPolicy,
     build_production_converter,
@@ -64,7 +64,7 @@ then
 
 ## Failure decisions belong to the application
 
-PyTender gives you typed failures and resilience primitives; it cannot decide whether your checkout should proceed. Decide explicitly what your application does when:
+MoneyTender gives you typed failures and resilience primitives; it cannot decide whether your checkout should proceed. Decide explicitly what your application does when:
 
 - the provider times out;
 - all providers fail;

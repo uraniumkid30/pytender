@@ -29,7 +29,7 @@ CREATE INDEX ledger_entry_amount_idx ON ledger_entry(amount_minor);
 ## Canonical adapter helpers
 
 ```python
-from pytender.adapters.database import from_columns, to_columns
+from moneytender.adapters.database import from_columns, to_columns
 
 columns = to_columns(money)
 restored = from_columns(columns["amount_minor"], columns["currency_code"])
@@ -43,7 +43,7 @@ These functions never round-trip through a floating-point or major-unit represen
 
 ## Database test matrix
 
-PyTender's pure column adapter is database-neutral. Applications must test their chosen SQL types against their actual database engine, including:
+MoneyTender's pure column adapter is database-neutral. Applications must test their chosen SQL types against their actual database engine, including:
 
 - maximum/minimum numeric values;
 - negative and zero values;
@@ -54,6 +54,6 @@ PyTender's pure column adapter is database-neutral. Applications must test their
 - ORM serialization;
 - PostgreSQL/MySQL/SQLite differences.
 
-PyTender cannot promise that an application's chosen column type can store every Python integer.
+MoneyTender cannot promise that an application's chosen column type can store every Python integer.
 
 The repository CI includes SQLAlchemy integration jobs for SQLite, PostgreSQL and MySQL. These verify both the JSON convenience adapter and a native `NUMERIC(38, 0)` + three-character currency-code representation. Engine-specific constraints, migration plans and production query plans remain application responsibilities.

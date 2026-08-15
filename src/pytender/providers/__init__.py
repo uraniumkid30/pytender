@@ -2,7 +2,7 @@
 
 Implement :class:`ExchangeRateProvider` or :class:`AsyncExchangeRateProvider`
 structurally; inheritance is not required. Optional HTTP providers are deliberately
-not imported here, so importing :mod:`pytender.providers` keeps the core dependency-free.
+not imported here, so importing :mod:`moneytender.providers` keeps the core dependency-free.
 """
 
 from ..fx import (

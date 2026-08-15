@@ -114,7 +114,9 @@ def display_policy(
     return RatePolicy(
         max_age=max_age,
         allowed_sources=frozenset(allowed_sources),
-        allowed_kinds=frozenset({RateKind.REFERENCE, RateKind.INDICATIVE, RateKind.EXECUTABLE}),
+        allowed_kinds=frozenset(
+            {RateKind.REFERENCE, RateKind.INDICATIVE, RateKind.EXECUTABLE}
+        ),
         missing_timestamp=MissingTimestampPolicy.USE_FETCHED_AT,
     )
 
@@ -185,11 +187,16 @@ def build_production_provider(
     The helper deliberately does not add inverse or triangulation automatically.
     Derived quotes are a business decision. Advanced users who need different
     ordering or provider-specific policies should compose the low-level decorators
-    from :mod:`pytender.infrastructure` directly.
+    from :mod:`moneytender.infrastructure` directly.
     """
     config = config or ProductionProviderConfig()
-    wrapped = [_wrap_sync_provider(provider, config=config) for provider in (primary, *fallbacks)]
-    provider: ExchangeRateProvider = wrapped[0] if len(wrapped) == 1 else ChainedRateProvider(*wrapped)
+    wrapped = [
+        _wrap_sync_provider(provider, config=config)
+        for provider in (primary, *fallbacks)
+    ]
+    provider: ExchangeRateProvider = (
+        wrapped[0] if len(wrapped) == 1 else ChainedRateProvider(*wrapped)
+    )
 
     provider = CachedRateProvider(
         provider,
@@ -295,7 +302,10 @@ def build_async_production_provider(
     from .observability import AsyncAuditedRateProvider, AsyncObservedRateProvider
 
     config = config or ProductionProviderConfig()
-    wrapped = [_wrap_async_provider(provider, config=config) for provider in (primary, *fallbacks)]
+    wrapped = [
+        _wrap_async_provider(provider, config=config)
+        for provider in (primary, *fallbacks)
+    ]
     provider: AsyncExchangeRateProvider = (
         wrapped[0] if len(wrapped) == 1 else AsyncChainedRateProvider(*wrapped)
     )

@@ -9,8 +9,8 @@ from sqlalchemy import (
 )
 from sqlalchemy.orm import DeclarativeBase, Session
 
-from pytender import Money
-from pytender.adapters.sqlalchemy import MoneyType
+from moneytender import Money
+from moneytender.adapters.sqlalchemy import MoneyType
 
 
 class Base(DeclarativeBase):

@@ -2,8 +2,8 @@ import pytest
 
 pytest.importorskip("pydantic")
 
-from pytender import Money
-from pytender.adapters.pydantic import MoneyModel
+from moneytender import Money
+from moneytender.adapters.pydantic import MoneyModel
 
 
 def test_pydantic_roundtrip() -> None:

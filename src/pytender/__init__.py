@@ -1,8 +1,8 @@
-"""PyTender's small, stable public API.
+"""MoneyTender's small, stable public API.
 
 Most applications only need :class:`Money` and :class:`MoneyConverter`.
 Operational FX decorators (retry, circuit breaking, rate limiting, caching,
-audit/observation, production builders) live under :mod:`pytender.infrastructure`
+audit/observation, production builders) live under :mod:`moneytender.infrastructure`
 so beginners do not need to understand them to use money safely.
 """
 

@@ -1,12 +1,12 @@
 """Opt-in operational FX infrastructure.
 
-The :mod:`pytender` top level intentionally stays small. Import this namespace when
+The :mod:`moneytender` top level intentionally stays small. Import this namespace when
 you need caching, failover, retry, rate limiting, circuit breaking, audit hooks,
 observability, derived-rate decorators, or production composition helpers.
 
 These helpers are dependency-free reference infrastructure, not distributed
 systems. Their cache, limiter and breaker state are process-local. Applications
-may instead wrap PyTender providers with mature third-party resilience libraries.
+may instead wrap MoneyTender providers with mature third-party resilience libraries.
 """
 
 from ..fx import (

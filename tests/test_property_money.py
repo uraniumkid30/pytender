@@ -1,6 +1,6 @@
 import pytest
 
-from pytender import Money
+from moneytender import Money
 
 hypothesis = pytest.importorskip("hypothesis")
 given = hypothesis.given
@@ -39,6 +39,8 @@ def test_major_minor_roundtrip_is_exact_for_huge_integers(amount: int) -> None:
     st.integers(min_value=-(10**30), max_value=10**30),
     st.integers(min_value=-1000, max_value=1000),
 )
-def test_integer_multiplication_distributes_over_minor_units(amount: int, multiplier: int) -> None:
+def test_integer_multiplication_distributes_over_minor_units(
+    amount: int, multiplier: int
+) -> None:
     money = Money.from_minor(amount, "USD")
     assert int((money * multiplier).minor) == amount * multiplier

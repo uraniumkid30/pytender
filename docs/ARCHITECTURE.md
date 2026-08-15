@@ -1,38 +1,38 @@
 # Architecture
 
-PyTender uses a dependency-inverted, layered design. The hot monetary domain stays dependency-free; FX infrastructure and framework integrations sit outside it.
+MoneyTender uses a dependency-inverted, layered design. The hot monetary domain stays dependency-free; FX infrastructure and framework integrations sit outside it.
 
 ```text
-pytender.core
+moneytender.core
     Money
     Currency
     CurrencyRegistry
     RoundingPolicy
 
-pytender.fx
+moneytender.fx
     ExchangeRate
     RateProvenance
     ExchangeRateProvider
     MoneyConverter
 
-pytender.policy
+moneytender.policy
     RateKind
     RatePolicy
 
-pytender.infrastructure
+moneytender.infrastructure
     cache
     retry
     circuit breaker
     audit
 
-pytender.providers
+moneytender.providers
     provider contracts + optional vendor adapters
 
-pytender.adapters
+moneytender.adapters
     Pydantic / Django / SQLAlchemy / Babel / relational helpers
 ```
 
-The top-level `pytender` API covers common use cases; layered namespaces provide focused discoverability for core and infrastructure concerns.
+The top-level `moneytender` API covers common use cases; layered namespaces provide focused discoverability for core and infrastructure concerns.
 
 ## Domain invariants
 
@@ -55,7 +55,7 @@ The top-level `pytender` API covers common use cases; layered namespaces provide
 
 ## Sync/async design
 
-Python deliberately has separate synchronous and asynchronous call semantics. PyTender keeps explicit sync/async provider variants rather than hiding blocking work behind an async-looking API. Shared mathematical helpers are centralized to reduce behavioral drift.
+Python deliberately has separate synchronous and asynchronous call semantics. MoneyTender keeps explicit sync/async provider variants rather than hiding blocking work behind an async-looking API. Shared mathematical helpers are centralized to reduce behavioral drift.
 
 The async triangulator intentionally fetches two independent pivot legs concurrently. The synchronous implementation performs the same logical operation serially because it has no concurrency contract to assume.
 
@@ -65,12 +65,12 @@ The async triangulator intentionally fetches two independent pivot legs concurre
 
 ## Ledger boundary
 
-See [LEDGER_BOUNDARY.md](LEDGER_BOUNDARY.md). PyTender is not a ledger or settlement system.
+See [LEDGER_BOUNDARY.md](LEDGER_BOUNDARY.md). MoneyTender is not a ledger or settlement system.
 
 ## Public API boundary in 1.0
 
-`pytender` intentionally exposes the small monetary/FX domain surface used by most applications. Operational decorators and production builders live under `pytender.infrastructure` so resilience complexity is opt-in.
+`moneytender` intentionally exposes the small monetary/FX domain surface used by most applications. Operational decorators and production builders live under `moneytender.infrastructure` so resilience complexity is opt-in.
 
 This is a discoverability and maturity boundary, not a dependency wall: the infrastructure code remains dependency-free and ships in the same distribution so installation stays simple. Teams with established resilience libraries can ignore it entirely and wrap the small provider protocols with their own middleware.
 
-Sync and async implementations remain separate because blocking and awaitable control flow have different cancellation/concurrency semantics. PyTender avoids hiding that difference behind clever abstractions; instead, parity tests assert matching business semantics for provider composition, retry/failover behavior, and derived-rate handling.
+Sync and async implementations remain separate because blocking and awaitable control flow have different cancellation/concurrency semantics. MoneyTender avoids hiding that difference behind clever abstractions; instead, parity tests assert matching business semantics for provider composition, retry/failover behavior, and derived-rate handling.

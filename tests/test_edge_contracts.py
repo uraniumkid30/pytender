@@ -5,7 +5,7 @@ from decimal import Decimal
 
 import pytest
 
-from pytender import (
+from moneytender import (
     AllocationError,
     AsyncMoneyConverter,
     CircuitOpenError,
@@ -36,8 +36,8 @@ from pytender import (
     UpRounding,
     round_to_increment,
 )
-from pytender.adapters.database import from_columns, to_columns
-from pytender.infrastructure import (
+from moneytender.adapters.database import from_columns, to_columns
+from moneytender.infrastructure import (
     AsyncChainedRateProvider,
     AsyncCircuitBreakerRateProvider,
     AsyncFromSyncProvider,
@@ -56,8 +56,8 @@ from pytender.infrastructure import (
     RetryPolicy,
     TriangulatingRateProvider,
 )
-from pytender.registry import DEFAULT_REGISTRY
-from pytender.serialization import from_dict, to_dict
+from moneytender.registry import DEFAULT_REGISTRY
+from moneytender.serialization import from_dict, to_dict
 
 
 def test_money_constructor_and_arithmetic_error_paths() -> None:
@@ -103,7 +103,10 @@ def test_money_ratio_comparison_and_allocation_contracts() -> None:
 
     assert [part.minor for part in Money.from_minor(-5, "USD").split(2)] == [-3, -2]
     assert [part.minor for part in one.allocate([0, 0])] == [0, 0]
-    assert sum(part.minor for part in Money.from_minor(-101, "USD").allocate([1, 1])) == -101
+    assert (
+        sum(part.minor for part in Money.from_minor(-101, "USD").allocate([1, 1]))
+        == -101
+    )
 
 
 def test_rounding_policies_and_validation() -> None:
@@ -224,7 +227,9 @@ def test_static_inverse_and_chain_contracts() -> None:
     with pytest.raises(RateUnavailableError):
         static.get_rate(CurrencyCode("GBP"), CurrencyCode("EUR"))
 
-    inverse = InverseRateProvider(static).get_rate(CurrencyCode("USD"), CurrencyCode("EUR"))
+    inverse = InverseRateProvider(static).get_rate(
+        CurrencyCode("USD"), CurrencyCode("EUR")
+    )
     assert inverse.value == Decimal("0.5")
     assert inverse.kind is RateKind.DERIVED
 
@@ -233,11 +238,15 @@ def test_static_inverse_and_chain_contracts() -> None:
             raise RateUnavailableError("missing")
 
     with pytest.raises(RateUnavailableError):
-        InverseRateProvider(Missing()).get_rate(CurrencyCode("USD"), CurrencyCode("EUR"))
+        InverseRateProvider(Missing()).get_rate(
+            CurrencyCode("USD"), CurrencyCode("EUR")
+        )
     with pytest.raises(ValueError):
         ChainedRateProvider()
     with pytest.raises(RateUnavailableError):
-        ChainedRateProvider(Missing()).get_rate(CurrencyCode("USD"), CurrencyCode("EUR"))
+        ChainedRateProvider(Missing()).get_rate(
+            CurrencyCode("USD"), CurrencyCode("EUR")
+        )
 
 
 def test_policy_provider_and_future_timestamp() -> None:
@@ -252,9 +261,13 @@ def test_policy_provider_and_future_timestamp() -> None:
                 RateProvenance("future", as_of=now + timedelta(minutes=1)),
             )
 
-    policy = RatePolicy(max_age=timedelta(minutes=1), max_future_skew=timedelta(seconds=1))
+    policy = RatePolicy(
+        max_age=timedelta(minutes=1), max_future_skew=timedelta(seconds=1)
+    )
     with pytest.raises(RatePolicyError):
-        PolicyRateProvider(FutureProvider(), policy).get_rate(CurrencyCode("USD"), CurrencyCode("EUR"))
+        PolicyRateProvider(FutureProvider(), policy).get_rate(
+            CurrencyCode("USD"), CurrencyCode("EUR")
+        )
 
 
 def test_converter_identity_bad_pair_and_same_code_metadata_mismatch() -> None:
@@ -281,21 +294,31 @@ def test_converter_identity_bad_pair_and_same_code_metadata_mismatch() -> None:
 async def test_async_provider_variants_and_error_paths() -> None:
     static = StaticRateProvider({("EUR", "USD"): "2"})
     adapted = AsyncFromSyncProvider(static)
-    assert (await adapted.get_rate(CurrencyCode("EUR"), CurrencyCode("USD"))).value == Decimal("2")
+    assert (
+        await adapted.get_rate(CurrencyCode("EUR"), CurrencyCode("USD"))
+    ).value == Decimal("2")
 
     inverse = AsyncInverseRateProvider(adapted)
-    assert (await inverse.get_rate(CurrencyCode("USD"), CurrencyCode("EUR"))).value == Decimal("0.5")
+    assert (
+        await inverse.get_rate(CurrencyCode("USD"), CurrencyCode("EUR"))
+    ).value == Decimal("0.5")
 
     class AsyncMissing:
-        async def get_rate(self, base: CurrencyCode, quote: CurrencyCode) -> ExchangeRate:
+        async def get_rate(
+            self, base: CurrencyCode, quote: CurrencyCode
+        ) -> ExchangeRate:
             raise RateUnavailableError("missing")
 
     with pytest.raises(RateUnavailableError):
-        await AsyncInverseRateProvider(AsyncMissing()).get_rate(CurrencyCode("USD"), CurrencyCode("EUR"))
+        await AsyncInverseRateProvider(AsyncMissing()).get_rate(
+            CurrencyCode("USD"), CurrencyCode("EUR")
+        )
     with pytest.raises(ValueError):
         AsyncChainedRateProvider()
     with pytest.raises(RateUnavailableError):
-        await AsyncChainedRateProvider(AsyncMissing()).get_rate(CurrencyCode("USD"), CurrencyCode("EUR"))
+        await AsyncChainedRateProvider(AsyncMissing()).get_rate(
+            CurrencyCode("USD"), CurrencyCode("EUR")
+        )
 
     with pytest.raises(TypeError):
         AsyncMoneyConverter(object())  # type: ignore[arg-type]
@@ -305,9 +328,13 @@ async def test_async_provider_variants_and_error_paths() -> None:
 async def test_async_triangulation_direct_and_derived() -> None:
     direct = AsyncFromSyncProvider(StaticRateProvider({("USD", "EUR"): "0.9"}))
     provider = AsyncTriangulatingRateProvider(direct, pivots=("GBP",))
-    assert (await provider.get_rate(CurrencyCode("USD"), CurrencyCode("EUR"))).value == Decimal("0.9")
+    assert (
+        await provider.get_rate(CurrencyCode("USD"), CurrencyCode("EUR"))
+    ).value == Decimal("0.9")
 
-    derived = AsyncFromSyncProvider(StaticRateProvider({("NGN", "USD"): "0.001", ("USD", "EUR"): "0.9"}))
+    derived = AsyncFromSyncProvider(
+        StaticRateProvider({("NGN", "USD"): "0.001", ("USD", "EUR"): "0.9"})
+    )
     cross = await AsyncTriangulatingRateProvider(derived, pivots=("USD",)).get_rate(
         CurrencyCode("NGN"), CurrencyCode("EUR")
     )
@@ -325,7 +352,9 @@ def test_sync_triangulation_validation_and_failure() -> None:
     with pytest.raises(ValueError):
         TriangulatingRateProvider(direct, pivots=())
     with pytest.raises(RateUnavailableError):
-        TriangulatingRateProvider(direct, pivots=("GBP",)).get_rate(CurrencyCode("NGN"), CurrencyCode("JPY"))
+        TriangulatingRateProvider(direct, pivots=("GBP",)).get_rate(
+            CurrencyCode("NGN"), CurrencyCode("JPY")
+        )
 
 
 def test_retry_policy_validation_and_exhaustion() -> None:
@@ -353,7 +382,9 @@ def test_retry_policy_validation_and_exhaustion() -> None:
 @pytest.mark.asyncio
 async def test_async_retry_exhaustion_and_policy_decorator() -> None:
     class Down:
-        async def get_rate(self, base: CurrencyCode, quote: CurrencyCode) -> ExchangeRate:
+        async def get_rate(
+            self, base: CurrencyCode, quote: CurrencyCode
+        ) -> ExchangeRate:
             raise ProviderError("down")
 
     retrying = AsyncRetryingRateProvider(
@@ -366,13 +397,17 @@ async def test_async_retry_exhaustion_and_policy_decorator() -> None:
     old = datetime.now(UTC) - timedelta(days=1)
 
     class Old:
-        async def get_rate(self, base: CurrencyCode, quote: CurrencyCode) -> ExchangeRate:
-            return ExchangeRate(base, quote, Decimal("1"), RateProvenance("old", as_of=old))
+        async def get_rate(
+            self, base: CurrencyCode, quote: CurrencyCode
+        ) -> ExchangeRate:
+            return ExchangeRate(
+                base, quote, Decimal("1"), RateProvenance("old", as_of=old)
+            )
 
     with pytest.raises(StaleRateError):
-        await AsyncPolicyRateProvider(Old(), RatePolicy(max_age=timedelta(seconds=1))).get_rate(
-            CurrencyCode("USD"), CurrencyCode("EUR")
-        )
+        await AsyncPolicyRateProvider(
+            Old(), RatePolicy(max_age=timedelta(seconds=1))
+        ).get_rate(CurrencyCode("USD"), CurrencyCode("EUR"))
 
 
 def test_observer_records_success_and_failure() -> None:
@@ -394,7 +429,9 @@ def test_observer_records_success_and_failure() -> None:
             raise ProviderError("boom")
 
     with pytest.raises(ProviderError):
-        ObservedRateProvider(Bad(), Observer()).get_rate(CurrencyCode("USD"), CurrencyCode("EUR"))
+        ObservedRateProvider(Bad(), Observer()).get_rate(
+            CurrencyCode("USD"), CurrencyCode("EUR")
+        )
     assert not events[-1].succeeded
     assert events[-1].error_type == "ProviderError"
 
@@ -408,28 +445,40 @@ async def test_async_observer_records_success_and_failure() -> None:
             events.append(event)
 
     class Good:
-        async def get_rate(self, base: CurrencyCode, quote: CurrencyCode) -> ExchangeRate:
+        async def get_rate(
+            self, base: CurrencyCode, quote: CurrencyCode
+        ) -> ExchangeRate:
             return ExchangeRate(base, quote, Decimal("1"), RateProvenance("good"))
 
-    await AsyncObservedRateProvider(Good(), Observer()).get_rate(CurrencyCode("USD"), CurrencyCode("EUR"))
+    await AsyncObservedRateProvider(Good(), Observer()).get_rate(
+        CurrencyCode("USD"), CurrencyCode("EUR")
+    )
     assert events[-1].succeeded
 
     class Bad:
-        async def get_rate(self, base: CurrencyCode, quote: CurrencyCode) -> ExchangeRate:
+        async def get_rate(
+            self, base: CurrencyCode, quote: CurrencyCode
+        ) -> ExchangeRate:
             raise ProviderError("boom")
 
     with pytest.raises(ProviderError):
-        await AsyncObservedRateProvider(Bad(), Observer()).get_rate(CurrencyCode("USD"), CurrencyCode("EUR"))
+        await AsyncObservedRateProvider(Bad(), Observer()).get_rate(
+            CurrencyCode("USD"), CurrencyCode("EUR")
+        )
     assert not events[-1].succeeded
 
 
 @pytest.mark.asyncio
 async def test_async_circuit_breaker_opens() -> None:
     class Down:
-        async def get_rate(self, base: CurrencyCode, quote: CurrencyCode) -> ExchangeRate:
+        async def get_rate(
+            self, base: CurrencyCode, quote: CurrencyCode
+        ) -> ExchangeRate:
             raise ProviderError("down")
 
-    breaker = AsyncCircuitBreakerRateProvider(Down(), failure_threshold=1, recovery_timeout_seconds=60)
+    breaker = AsyncCircuitBreakerRateProvider(
+        Down(), failure_threshold=1, recovery_timeout_seconds=60
+    )
     with pytest.raises(ProviderError):
         await breaker.get_rate(CurrencyCode("USD"), CurrencyCode("EUR"))
     with pytest.raises(CircuitOpenError):
@@ -438,11 +487,11 @@ async def test_async_circuit_breaker_opens() -> None:
 
 def test_cache_validation_clear_and_error_without_stale_fallback() -> None:
     with pytest.raises(ValueError):
-        from pytender.infrastructure import CachedRateProvider
+        from moneytender.infrastructure import CachedRateProvider
 
         CachedRateProvider(StaticRateProvider({}), ttl_seconds=0)
     with pytest.raises(ValueError):
-        from pytender.infrastructure import CachedRateProvider
+        from moneytender.infrastructure import CachedRateProvider
 
         CachedRateProvider(StaticRateProvider({}), stale_if_error_seconds=-1)
 
@@ -450,7 +499,7 @@ def test_cache_validation_clear_and_error_without_stale_fallback() -> None:
         def get_rate(self, base: CurrencyCode, quote: CurrencyCode) -> ExchangeRate:
             raise ProviderError("down")
 
-    from pytender.infrastructure import CachedRateProvider
+    from moneytender.infrastructure import CachedRateProvider
 
     cache = CachedRateProvider(Down())
     with pytest.raises(ProviderError):
@@ -461,15 +510,21 @@ def test_cache_validation_clear_and_error_without_stale_fallback() -> None:
 
 @pytest.mark.asyncio
 async def test_async_cache_validation_clear_and_provider_failure() -> None:
-    from pytender.infrastructure import AsyncCachedRateProvider
+    from moneytender.infrastructure import AsyncCachedRateProvider
 
     with pytest.raises(ValueError):
-        AsyncCachedRateProvider(AsyncFromSyncProvider(StaticRateProvider({})), maxsize=0)
+        AsyncCachedRateProvider(
+            AsyncFromSyncProvider(StaticRateProvider({})), maxsize=0
+        )
     with pytest.raises(ValueError):
-        AsyncCachedRateProvider(AsyncFromSyncProvider(StaticRateProvider({})), stale_if_error_seconds=-1)
+        AsyncCachedRateProvider(
+            AsyncFromSyncProvider(StaticRateProvider({})), stale_if_error_seconds=-1
+        )
 
     class Down:
-        async def get_rate(self, base: CurrencyCode, quote: CurrencyCode) -> ExchangeRate:
+        async def get_rate(
+            self, base: CurrencyCode, quote: CurrencyCode
+        ) -> ExchangeRate:
             raise ProviderError("down")
 
     cache = AsyncCachedRateProvider(Down())
@@ -501,7 +556,9 @@ async def test_async_retry_unavailable_can_be_explicitly_retried() -> None:
     calls = 0
 
     class Missing:
-        async def get_rate(self, base: CurrencyCode, quote: CurrencyCode) -> ExchangeRate:
+        async def get_rate(
+            self, base: CurrencyCode, quote: CurrencyCode
+        ) -> ExchangeRate:
             nonlocal calls
             calls += 1
             raise RateUnavailableError("missing")
@@ -531,7 +588,7 @@ def test_circuit_breaker_validation_state_and_success_reset() -> None:
         failure_threshold=1,
         recovery_timeout_seconds=1,
     )
-    from pytender.infrastructure import CircuitState
+    from moneytender.infrastructure import CircuitState
 
     assert good.state is CircuitState.CLOSED
     good.get_rate(CurrencyCode("USD"), CurrencyCode("EUR"))
@@ -541,7 +598,9 @@ def test_circuit_breaker_validation_state_and_success_reset() -> None:
 @pytest.mark.asyncio
 async def test_async_circuit_breaker_validation_and_success() -> None:
     with pytest.raises(ValueError):
-        AsyncCircuitBreakerRateProvider(AsyncFromSyncProvider(StaticRateProvider({})), failure_threshold=0)
+        AsyncCircuitBreakerRateProvider(
+            AsyncFromSyncProvider(StaticRateProvider({})), failure_threshold=0
+        )
     with pytest.raises(ValueError):
         AsyncCircuitBreakerRateProvider(
             AsyncFromSyncProvider(StaticRateProvider({})), recovery_timeout_seconds=0
@@ -552,12 +611,16 @@ async def test_async_circuit_breaker_validation_and_success() -> None:
         failure_threshold=1,
         recovery_timeout_seconds=1,
     )
-    assert (await good.get_rate(CurrencyCode("USD"), CurrencyCode("EUR"))).value == Decimal("1")
+    assert (
+        await good.get_rate(CurrencyCode("USD"), CurrencyCode("EUR"))
+    ).value == Decimal("1")
 
 
 @pytest.mark.asyncio
 async def test_async_converter_identity_policy_and_bad_pair() -> None:
-    provider = AsyncFromSyncProvider(StaticRateProvider({("USD", "EUR"): "1"}, kind=RateKind.EXECUTABLE))
+    provider = AsyncFromSyncProvider(
+        StaticRateProvider({("USD", "EUR"): "1"}, kind=RateKind.EXECUTABLE)
+    )
     converter = AsyncMoneyConverter(
         provider,
         policy=RatePolicy(allowed_kinds=frozenset({RateKind.EXECUTABLE})),
@@ -568,7 +631,9 @@ async def test_async_converter_identity_policy_and_bad_pair() -> None:
     assert result.target.minor == 100
 
     class Wrong:
-        async def get_rate(self, base: CurrencyCode, quote: CurrencyCode) -> ExchangeRate:
+        async def get_rate(
+            self, base: CurrencyCode, quote: CurrencyCode
+        ) -> ExchangeRate:
             return ExchangeRate(CurrencyCode("GBP"), quote, Decimal("1"))
 
     with pytest.raises(InvalidRateError):

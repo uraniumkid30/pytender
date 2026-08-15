@@ -1,6 +1,6 @@
 # Errors and troubleshooting
 
-All PyTender exceptions inherit from `MoneyError`.
+All MoneyTender exceptions inherit from `MoneyError`.
 
 | Exception | Meaning | Typical action |
 |---|---|---|
@@ -25,7 +25,7 @@ All PyTender exceptions inherit from `MoneyError`.
 
 ## Currency mismatch despite the same code
 
-Two currency definitions can both say `USD` but differ in exponent or other metadata. PyTender treats those definitions as incompatible. This prevents a value interpreted as cents from being combined with a whole-dollar override merely because both carry the same code.
+Two currency definitions can both say `USD` but differ in exponent or other metadata. MoneyTender treats those definitions as incompatible. This prevents a value interpreted as cents from being combined with a whole-dollar override merely because both carry the same code.
 
 ## Provider failure versus unavailable pair
 

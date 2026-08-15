@@ -1,6 +1,6 @@
 # Framework adapters
 
-Adapters are optional and never imported by `pytender` core.
+Adapters are optional and never imported by `moneytender` core.
 
 ## Pydantic v2
 

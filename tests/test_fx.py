@@ -3,7 +3,7 @@ from decimal import Decimal
 
 import pytest
 
-from pytender import (
+from moneytender import (
     AsyncMoneyConverter,
     CurrencyCode,
     Money,
@@ -11,7 +11,7 @@ from pytender import (
     RateUnavailableError,
     StaticRateProvider,
 )
-from pytender.infrastructure import (
+from moneytender.infrastructure import (
     AsyncCachedRateProvider,
     AsyncFromSyncProvider,
     InverseRateProvider,

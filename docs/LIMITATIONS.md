@@ -1,10 +1,10 @@
 # Limitations and guarantees
 
-PyTender is a money/FX domain library, not an accounting ledger, tax engine, legal-tender authority, locale database, pricing oracle, market-data authority or compliance product.
+MoneyTender is a money/FX domain library, not an accounting ledger, tax engine, legal-tender authority, locale database, pricing oracle, market-data authority or compliance product.
 
 ## FX correctness
 
-A structurally valid rate can still be economically wrong. PyTender can enforce source, timestamp, rate kind and derivation policy; it cannot verify liquidity, spread, market fairness, provider methodology, legal validity or whether an `EXECUTABLE` classification will actually be honored by an upstream venue.
+A structurally valid rate can still be economically wrong. MoneyTender can enforce source, timestamp, rate kind and derivation policy; it cannot verify liquidity, spread, market fairness, provider methodology, legal validity or whether an `EXECUTABLE` classification will actually be honored by an upstream venue.
 
 ## Provider availability
 

@@ -1,7 +1,7 @@
 import pytest
 
-from pytender import ProviderError
-from pytender.infrastructure import (
+from moneytender import ProviderError
+from moneytender.infrastructure import (
     discover_provider_plugins,
     load_provider_plugin,
 )
@@ -13,4 +13,4 @@ def test_plugin_discovery_is_safe_without_plugins():
 
 def test_missing_plugin_has_actionable_error():
     with pytest.raises(ProviderError, match="not installed"):
-        load_provider_plugin("definitely-not-installed-pytender-provider")
+        load_provider_plugin("definitely-not-installed-moneytender-provider")

@@ -2,7 +2,7 @@ import pytest
 
 pytest.importorskip("pytest_benchmark")
 
-from pytender import Money, MoneyConverter, StaticRateProvider
+from moneytender import Money, MoneyConverter, StaticRateProvider
 
 MONEY = Money.from_minor(10_000, "USD")
 OTHER = Money.from_minor(555, "USD")

@@ -1,6 +1,6 @@
 # Production FX architecture
 
-PyTender can safely represent and validate FX quotes, but it cannot decide your commercial policy. A payment checkout, treasury service and end-of-day report usually need different guarantees.
+MoneyTender can safely represent and validate FX quotes, but it cannot decide your commercial policy. A payment checkout, treasury service and end-of-day report usually need different guarantees.
 
 ## Recommended boundary
 
@@ -31,7 +31,7 @@ The order is intentionally application-controlled. For example, placing a cache 
 
 ```python
 from datetime import timedelta
-from pytender import MoneyConverter, RateKind, RatePolicy
+from moneytender import MoneyConverter, RateKind, RatePolicy
 
 checkout_policy = RatePolicy(
     max_age=timedelta(seconds=30),
@@ -50,7 +50,7 @@ converter = MoneyConverter(provider, policy=checkout_policy)
 - `EXECUTABLE`: provider asserts transaction suitability subject to its terms.
 - `DERIVED`: calculated by inversion/triangulation rather than directly quoted.
 
-PyTender cannot verify that a provider is economically correct. It can prevent your application from accidentally accepting a class of quote it did not authorize.
+MoneyTender cannot verify that a provider is economically correct. It can prevent your application from accidentally accepting a class of quote it did not authorize.
 
 ## Inverse and triangulated rates
 
@@ -73,7 +73,7 @@ Neither decorator replaces provider-specific HTTP timeout configuration. Always 
 `RateLimitedRateProvider` and `AsyncRateLimitedRateProvider` provide an optional dependency-free token bucket. They protect a provider from accidental local request bursts and make provider quotas explicit in composition. They are intentionally **process-local**; if a quota is shared across pods/workers, use a centralized limiter or rate service.
 
 ```python
-from pytender.infrastructure import RateLimitedRateProvider, RateLimitPolicy
+from moneytender.infrastructure import RateLimitedRateProvider, RateLimitPolicy
 
 provider = RateLimitedRateProvider(
     provider,
@@ -106,17 +106,17 @@ ledger.store(
 )
 ```
 
-`AuditedRateProvider` can additionally emit each successful quote to an application-owned `RateAuditSink`. PyTender deliberately does not choose your logging database or observability vendor.
+`AuditedRateProvider` can additionally emit each successful quote to an application-owned `RateAuditSink`. MoneyTender deliberately does not choose your logging database or observability vendor.
 
 ## Provider disagreement
 
 `ChainedRateProvider` is a **priority/failover** primitive, not a consensus engine. It returns the first successful provider in configured order. If every provider says the pair is unavailable, it raises `RateUnavailableError`; if any provider failed operationally and nobody succeeds, it raises `ProviderError` so infrastructure uncertainty is not misreported as authoritative pair unavailability.
 
-If your business requires median pricing, quorum, deviation thresholds or human review when providers disagree, implement that as a dedicated provider/policy component. PyTender deliberately does not invent a universal financial consensus rule.
+If your business requires median pricing, quorum, deviation thresholds or human review when providers disagree, implement that as a dedicated provider/policy component. MoneyTender deliberately does not invent a universal financial consensus rule.
 
 ## Failure-to-HTTP mapping
 
-PyTender raises typed domain errors; your API decides transport semantics. A common mapping is:
+MoneyTender raises typed domain errors; your API decides transport semantics. A common mapping is:
 
 - `RateUnavailableError` → 422/409 when the requested pair cannot be priced.
 - `ProviderError` / `CircuitOpenError` → 503 when pricing infrastructure is unhealthy.
@@ -129,7 +129,7 @@ Do not blindly copy these mappings; they are application decisions.
 If you do not need custom decorator ordering, prefer:
 
 ```python
-from pytender.infrastructure import build_production_converter, checkout_policy
+from moneytender.infrastructure import build_production_converter, checkout_policy
 
 converter = build_production_converter(
     primary_provider,
@@ -161,8 +161,8 @@ The stale fallback age is evaluated at the time the provider **fails**, not when
 
 ## Operational helper maturity and third-party resilience
 
-The money/currency domain is PyTender's stable core. `pytender.infrastructure` contains opt-in, dependency-free operational helpers. They are useful defaults and thoroughly tested, but they do not replace organization-wide resilience tooling when your architecture already provides it.
+The money/currency domain is MoneyTender's stable core. `moneytender.infrastructure` contains opt-in, dependency-free operational helpers. They are useful defaults and thoroughly tested, but they do not replace organization-wide resilience tooling when your architecture already provides it.
 
-If your platform already standardizes retry, circuit breaking, quotas, metrics, or distributed caching, keep using that infrastructure. PyTender's `ExchangeRateProvider` / `AsyncExchangeRateProvider` protocols are intentionally small so external middleware can wrap providers without changing the monetary domain.
+If your platform already standardizes retry, circuit breaking, quotas, metrics, or distributed caching, keep using that infrastructure. MoneyTender's `ExchangeRateProvider` / `AsyncExchangeRateProvider` protocols are intentionally small so external middleware can wrap providers without changing the monetary domain.
 
 For a first production rollout, prefer low-risk traffic, feature flags, dashboards, and failure injection before making local circuit/limiter behavior a critical availability dependency.

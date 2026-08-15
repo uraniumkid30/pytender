@@ -28,7 +28,7 @@ def main() -> int:
 
     print(
         f"Fetched {len(rows)} ISO currency/fund codes from SIX. "
-        "Integrate into src/pytender/iso4217.py after review."
+        "Integrate into src/moneytender/iso4217.py after review."
     )
     for code, row in sorted(rows.items()):
         print(code, row)

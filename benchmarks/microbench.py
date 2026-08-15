@@ -1,6 +1,6 @@
 from timeit import timeit
 
-from pytender import Money, MoneyConverter, StaticRateProvider
+from moneytender import Money, MoneyConverter, StaticRateProvider
 
 ITERATIONS = 200_000
 money = Money.from_minor(10_000, "USD")

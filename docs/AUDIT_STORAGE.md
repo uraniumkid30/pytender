@@ -1,6 +1,6 @@
 # FX audit persistence reference
 
-PyTender deliberately does not ship a database dependency, but production teams often need a durable record of the exact quote used.
+MoneyTender deliberately does not ship a database dependency, but production teams often need a durable record of the exact quote used.
 
 A reference relational schema is:
 
@@ -24,14 +24,14 @@ CREATE INDEX fx_quote_audit_pair_time_idx
     ON fx_quote_audit (base_currency, quote_currency, fetched_at DESC);
 ```
 
-Adjust identity/JSON syntax for your database. The schema is a reference, not a migration PyTender owns.
+Adjust identity/JSON syntax for your database. The schema is a reference, not a migration MoneyTender owns.
 
 ## Audit failure policy
 
 `AuditedRateProvider` is explicit:
 
 ```python
-from pytender.infrastructure import AuditedRateProvider, HookFailureMode
+from moneytender.infrastructure import AuditedRateProvider, HookFailureMode
 
 # Compliance-sensitive: pricing fails if the audit write fails.
 strict = AuditedRateProvider(provider, sink, failure_mode=HookFailureMode.FAIL_CLOSED)

@@ -1,4 +1,4 @@
-from pytender import DEFAULT_REGISTRY, ISO_SNAPSHOT_DATE
+from moneytender import DEFAULT_REGISTRY, ISO_SNAPSHOT_DATE
 
 
 def test_catalog_is_large_and_current_snapshot():

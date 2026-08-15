@@ -1,6 +1,6 @@
 # FX policy
 
-PyTender separates three concepts that are commonly conflated:
+MoneyTender separates three concepts that are commonly conflated:
 
 1. **Quote retrieval** — an `ExchangeRateProvider` obtains a quote.
 2. **Caching/resilience** — infrastructure decorators optimize or protect retrieval.
@@ -10,7 +10,7 @@ PyTender separates three concepts that are commonly conflated:
 
 ```python
 from datetime import timedelta
-from pytender import MissingTimestampPolicy, RateKind, RatePolicy
+from moneytender import MissingTimestampPolicy, RateKind, RatePolicy
 
 checkout = RatePolicy(
     max_age=timedelta(seconds=30),
@@ -22,7 +22,7 @@ checkout = RatePolicy(
 )
 ```
 
-`max_age` uses `provenance.as_of` by default. If an application explicitly chooses `USE_FETCHED_AT`, PyTender may use the retrieval timestamp when the provider did not publish an effective-time timestamp. That is a weaker semantic and should be a deliberate choice.
+`max_age` uses `provenance.as_of` by default. If an application explicitly chooses `USE_FETCHED_AT`, MoneyTender may use the retrieval timestamp when the provider did not publish an effective-time timestamp. That is a weaker semantic and should be a deliberate choice.
 
 ## Derived quotes
 
@@ -38,7 +38,7 @@ reporting = RatePolicy(
 
 This two-part opt-in is intentional. It makes accidental use of a mathematical cross-rate in an executable checkout harder.
 
-Custom provider authors must keep `RateKind` and `DerivationKind` consistent. A derived rate must declare `INVERSE`, `TRIANGULATION`, or `CUSTOM`; a non-derived rate must use `NONE`. PyTender rejects inconsistent objects at construction time.
+Custom provider authors must keep `RateKind` and `DerivationKind` consistent. A derived rate must declare `INVERSE`, `TRIANGULATION`, or `CUSTOM`; a non-derived rate must use `NONE`. MoneyTender rejects inconsistent objects at construction time.
 
 ## Cache TTL versus freshness
 
@@ -53,7 +53,7 @@ For deterministic replay, persist the actual `ExchangeRate` used for the origina
 Most applications should start with a named policy rather than constructing every field manually:
 
 ```python
-from pytender.infrastructure import checkout_policy, display_policy, reporting_policy, treasury_policy
+from moneytender.infrastructure import checkout_policy, display_policy, reporting_policy, treasury_policy
 
 checkout = checkout_policy(allowed_sources={"treasury"})
 reporting = reporting_policy(allow_derived=True)
@@ -68,7 +68,7 @@ Presets are functions rather than mutable global policy objects.
 `allowed_sources` handles the common allow-list case. Larger organizations can attach a validator for rules that belong to their own governance model, such as environment, region, market, source trust, deviation limits, or approval state:
 
 ```python
-from pytender import RatePolicy, RatePolicyError
+from moneytender import RatePolicy, RatePolicyError
 
 TRUSTED = {"treasury": 100, "bank-a": 80}
 
@@ -81,7 +81,7 @@ def require_high_trust(rate):
 policy = RatePolicy(validator=require_high_trust)
 ```
 
-PyTender intentionally does not define what "trusted" means for your organization.
+MoneyTender intentionally does not define what "trusted" means for your organization.
 
 ## Daily reference dates are not live quote timestamps
 

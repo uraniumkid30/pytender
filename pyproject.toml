@@ -3,13 +3,13 @@ requires = ["setuptools>=77"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "PyTender"
+name = "MoneyTender"
 dynamic = ["version"]
 description = "Strict, typed, integer-minor-unit money values with pluggable sync/async FX conversion for Python."
 readme = "README.md"
 requires-python = ">=3.11"
 license = {text = "MIT"}
-authors = [{name = "PyTender contributors"}]
+authors = [{name = "MoneyTender contributors"}]
 # Add [project.urls] after creating the public repository so PyPI can verify the real links.
 keywords = ["money", "currency", "finance", "payments", "fx", "decimal", "iso4217"]
 classifiers = [
@@ -43,15 +43,15 @@ dev = [
 ]
 
 [project.urls]
-Repository = "https://github.com/uraniumkid30/pytender.git"
-Issues = "https://github.com/uraniumkid30/pytender/issues"
+Repository = "https://github.com/uraniumkid30/moneytender.git"
+Issues = "https://github.com/uraniumkid30/moneytender/issues"
 
 [tool.setuptools.dynamic]
-version = {attr = "pytender._version.__version__"}
+version = {attr = "moneytender._version.__version__"}
 [tool.setuptools.packages.find]
 where = ["src"]
 [tool.setuptools.package-data]
-pytender = ["py.typed"]
+moneytender = ["py.typed"]
 
 [tool.pytest.ini_options]
 addopts = "-ra --strict-markers --strict-config"
@@ -61,14 +61,14 @@ markers = ["network: tests requiring real network access"]
 [tool.coverage.run]
 branch = true
 source = [
-  "pytender.money",
-  "pytender.types",
-  "pytender.registry",
-  "pytender.rounding",
-  "pytender.serialization",
-  "pytender.formatting",
-  "pytender.policy",
-  "pytender.adapters.database",
+  "moneytender.money",
+  "moneytender.types",
+  "moneytender.registry",
+  "moneytender.rounding",
+  "moneytender.serialization",
+  "moneytender.formatting",
+  "moneytender.policy",
+  "moneytender.adapters.database",
 ]
 
 [tool.coverage.report]
@@ -82,7 +82,7 @@ target-version = "py311"
 [tool.ruff.lint]
 select = ["E", "F", "I", "B", "UP", "SIM", "C4", "RUF"]
 ignore = [
-    "UP037",  # Intentional: PyTender permits explicit quoted forward references.
+    "UP037",  # Intentional: MoneyTender permits explicit quoted forward references.
 ]
 
 [tool.mypy]
@@ -90,4 +90,4 @@ python_version = "3.11"
 strict = true
 warn_unused_ignores = true
 warn_redundant_casts = true
-packages = ["pytender"]
+packages = ["moneytender"]

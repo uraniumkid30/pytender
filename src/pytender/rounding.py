@@ -46,7 +46,7 @@ class DecimalRounding:
 
 
 class HalfEvenRounding(DecimalRounding):
-    """Banker's rounding (ties to even), the default PyTender policy."""
+    """Banker's rounding (ties to even), the default MoneyTender policy."""
 
     __slots__ = ()
 

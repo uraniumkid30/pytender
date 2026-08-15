@@ -2,10 +2,10 @@ from decimal import Decimal
 
 import pytest
 
-from pytender import CurrencyCode
+from moneytender import CurrencyCode
 
 httpx = pytest.importorskip("httpx")
-frankfurter = pytest.importorskip("pytender.providers.frankfurter")
+frankfurter = pytest.importorskip("moneytender.providers.frankfurter")
 FrankfurterProvider = frankfurter.FrankfurterProvider
 
 
@@ -27,7 +27,9 @@ def test_sync_http_provider_parses_decimal_and_provenance() -> None:
         base_url="https://example.test",
     )
     try:
-        rate = FrankfurterProvider(client=client).get_rate(CurrencyCode("USD"), CurrencyCode("EUR"))
+        rate = FrankfurterProvider(client=client).get_rate(
+            CurrencyCode("USD"), CurrencyCode("EUR")
+        )
         assert rate.value == Decimal("0.85")
         assert rate.provenance.as_of is not None
     finally:

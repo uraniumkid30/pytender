@@ -11,7 +11,7 @@ from decimal import Decimal
 
 import pytest
 
-from pytender import (
+from moneytender import (
     Currency,
     CurrencyCode,
     CurrencyRegistry,
@@ -24,8 +24,8 @@ from pytender import (
     RatePolicyError,
     RateProvenance,
 )
-from pytender.formatting import SimpleMoneyFormatter, _group_digits
-from pytender.rounding import DecimalRounding, RoundingError
+from moneytender.formatting import SimpleMoneyFormatter, _group_digits
+from moneytender.rounding import DecimalRounding, RoundingError
 
 
 def _currency(
@@ -83,7 +83,9 @@ def test_money_integer_major_subtraction_and_explicit_formatter_paths() -> None:
     integer_major = Money.from_major(5, "USD")
     assert integer_major.minor == 500
 
-    assert Money.from_major("10", "USD") - Money.from_major("2.50", "USD") == Money.from_major("7.50", "USD")
+    assert Money.from_major("10", "USD") - Money.from_major(
+        "2.50", "USD"
+    ) == Money.from_major("7.50", "USD")
 
     class Formatter:
         def format(self, money: Money) -> str:

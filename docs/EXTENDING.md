@@ -1,4 +1,4 @@
-# Extending PyTender
+# Extending MoneyTender
 
 ## Custom FX provider
 
@@ -22,10 +22,10 @@ Clone `DEFAULT_REGISTRY` or use `CurrencyRegistry.iso4217()`. Register private u
 
 ## Third-party provider plugins
 
-External packages can advertise providers without PyTender importing them eagerly:
+External packages can advertise providers without MoneyTender importing them eagerly:
 
 ```toml
-[project.entry-points."pytender.fx_providers"]
+[project.entry-points."moneytender.fx_providers"]
 acme = "acme_money:build_provider"
 ```
 

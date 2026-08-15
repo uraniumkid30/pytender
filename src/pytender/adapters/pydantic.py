@@ -3,7 +3,7 @@ from __future__ import annotations
 try:
     from pydantic import BaseModel, ConfigDict, field_validator
 except ImportError as exc:  # pragma: no cover
-    raise ImportError("Pydantic adapter requires PyTender[pydantic]") from exc
+    raise ImportError("Pydantic adapter requires MoneyTender[pydantic]") from exc
 
 from ..money import Money
 from ..registry import DEFAULT_REGISTRY, CurrencyRegistry

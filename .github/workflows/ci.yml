@@ -23,7 +23,7 @@ jobs:
       - run: pytest --cov --cov-report=term-missing
       - run: ruff check .
       - run: ruff format --check .
-      - run: mypy src/pytender
+      - run: mypy src/moneytender
 
   database-integration:
     name: SQLAlchemy integration (${{ matrix.database }})
@@ -38,11 +38,11 @@ jobs:
         env:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgres
-          POSTGRES_DB: pytender
+          POSTGRES_DB: moneytender
         ports:
           - 5432:5432
         options: >-
-          --health-cmd "pg_isready -U postgres -d pytender"
+          --health-cmd "pg_isready -U postgres -d moneytender"
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
@@ -50,7 +50,7 @@ jobs:
         image: mysql:8.4
         env:
           MYSQL_ROOT_PASSWORD: root
-          MYSQL_DATABASE: pytender
+          MYSQL_DATABASE: moneytender
         ports:
           - 3306:3306
         options: >-
@@ -70,9 +70,9 @@ jobs:
         shell: bash
         run: |
           case "${{ matrix.database }}" in
-            sqlite) echo "PYTENDER_DATABASE_URL=sqlite+pysqlite:///pytender-ci.db" >> "$GITHUB_ENV" ;;
-            postgres) echo "PYTENDER_DATABASE_URL=postgresql+psycopg://postgres:postgres@127.0.0.1:5432/pytender" >> "$GITHUB_ENV" ;;
-            mysql) echo "PYTENDER_DATABASE_URL=mysql+pymysql://root:root@127.0.0.1:3306/pytender" >> "$GITHUB_ENV" ;;
+            sqlite) echo "PYTENDER_DATABASE_URL=sqlite+pysqlite:///moneytender-ci.db" >> "$GITHUB_ENV" ;;
+            postgres) echo "PYTENDER_DATABASE_URL=postgresql+psycopg://postgres:postgres@127.0.0.1:5432/moneytender" >> "$GITHUB_ENV" ;;
+            mysql) echo "PYTENDER_DATABASE_URL=mysql+pymysql://root:root@127.0.0.1:3306/moneytender" >> "$GITHUB_ENV" ;;
           esac
       - run: pytest tests/integration/test_sqlalchemy_databases.py -q
 

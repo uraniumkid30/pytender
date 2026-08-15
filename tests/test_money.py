@@ -2,7 +2,7 @@ from decimal import Decimal
 
 import pytest
 
-from pytender import (
+from moneytender import (
     Currency,
     CurrencyCode,
     CurrencyMismatchError,

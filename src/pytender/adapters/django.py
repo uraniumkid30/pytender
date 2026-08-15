@@ -6,7 +6,7 @@ try:
     from django.core import exceptions as django_exceptions
     from django.db import models
 except ImportError as exc:  # pragma: no cover
-    raise ImportError("Django adapter requires PyTender[django]") from exc
+    raise ImportError("Django adapter requires MoneyTender[django]") from exc
 
 from ..money import Money
 from ..serialization import from_dict, to_dict
@@ -21,9 +21,13 @@ class MoneyField(models.JSONField):
     ``docs/DATABASE_STORAGE.md``.
     """
 
-    description = "PyTender monetary amount (integer minor units + ISO/custom currency)"
+    description = (
+        "MoneyTender monetary amount (integer minor units + ISO/custom currency)"
+    )
 
-    def from_db_value(self, value: Any, expression: Any, connection: Any) -> Money | None:
+    def from_db_value(
+        self, value: Any, expression: Any, connection: Any
+    ) -> Money | None:
         """Convert a database value into Money for Django model loading."""
         raw = super().from_db_value(value, expression, connection)
         if raw is None or isinstance(raw, Money):
@@ -48,5 +52,7 @@ class MoneyField(models.JSONField):
         if isinstance(value, Money):
             value = dict(to_dict(value))
         elif value is not None and not isinstance(value, dict):
-            raise django_exceptions.ValidationError("MoneyField expects Money, dict, or None")
+            raise django_exceptions.ValidationError(
+                "MoneyField expects Money, dict, or None"
+            )
         return super().get_prep_value(value)

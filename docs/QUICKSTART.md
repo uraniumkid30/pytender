@@ -3,7 +3,7 @@
 ## Create money
 
 ```python
-from pytender import Money
+from moneytender import Money
 
 price = Money.from_major("19.99", "USD")
 raw = Money.from_minor(1999, "USD")
@@ -36,7 +36,7 @@ The sum of all returned parts always equals the original amount.
 ## Convert currency
 
 ```python
-from pytender import MoneyConverter, StaticRateProvider
+from moneytender import MoneyConverter, StaticRateProvider
 
 provider = StaticRateProvider({("USD", "EUR"): "0.92"})
 converter = MoneyConverter(provider)
@@ -48,7 +48,7 @@ For live/custom rates, see [PROVIDERS.md](PROVIDERS.md).
 ## Custom currency metadata
 
 ```python
-from pytender import Currency, CurrencyCode, CurrencyRegistry, Money
+from moneytender import Currency, CurrencyCode, CurrencyRegistry, Money
 
 registry = CurrencyRegistry.iso4217()
 registry.register(Currency(CurrencyCode("TOK"), 4, "T", "Internal Token"))
@@ -60,7 +60,7 @@ Clone `DEFAULT_REGISTRY` before application-specific overrides; do not mutate sh
 ## Serialize
 
 ```python
-from pytender import to_dict, from_dict
+from moneytender import to_dict, from_dict
 
 payload = to_dict(amount)
 restored = from_dict(payload, registry=registry)

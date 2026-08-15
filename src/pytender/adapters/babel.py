@@ -3,7 +3,7 @@ from __future__ import annotations
 try:
     from babel.numbers import format_currency
 except ImportError as exc:  # pragma: no cover
-    raise ImportError("Babel formatter requires PyTender[babel]") from exc
+    raise ImportError("Babel formatter requires MoneyTender[babel]") from exc
 
 from ..money import Money
 
