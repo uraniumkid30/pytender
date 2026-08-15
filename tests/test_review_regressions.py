@@ -34,9 +34,7 @@ def test_fx_large_integer_is_independent_of_ambient_context() -> None:
     quote = Currency(CurrencyCode("BBB"), 2)
     registry = CurrencyRegistry((base, quote))
     money = Money.from_minor(10**30 + 1_234_567, base)
-    converter = MoneyConverter(
-        StaticRateProvider({("AAA", "BBB"): "1.25"}), registry=registry
-    )
+    converter = MoneyConverter(StaticRateProvider({("AAA", "BBB"): "1.25"}), registry=registry)
     with localcontext() as context:
         context.prec = 6
         converted = converter.convert(money, quote)
@@ -60,9 +58,7 @@ def test_equality_and_ordering_use_same_currency_compatibility() -> None:
 
 def test_rate_provenance_and_exchange_rate_are_hashable() -> None:
     provenance = RateProvenance("test", metadata={"desk": "treasury"})
-    rate = ExchangeRate(
-        CurrencyCode("USD"), CurrencyCode("EUR"), Decimal("0.9"), provenance
-    )
+    rate = ExchangeRate(CurrencyCode("USD"), CurrencyCode("EUR"), Decimal("0.9"), provenance)
     assert isinstance(hash(provenance), int)
     assert isinstance(hash(rate), int)
 
@@ -97,9 +93,7 @@ def test_large_formatting_is_independent_of_ambient_decimal_context() -> None:
     assert rendered.endswith("123.45")
 
 
-def test_major_construction_multiply_rate_and_cash_round_ignore_ambient_context() -> (
-    None
-):
+def test_major_construction_multiply_rate_and_cash_round_ignore_ambient_context() -> None:
     from decimal import Decimal, getcontext
 
     from moneytender import Money, round_to_increment

@@ -43,9 +43,7 @@ def test_triangulation_and_provenance():
 def test_async_triangulation():
     async def run():
         provider = AsyncTriangulatingRateProvider(
-            AsyncFromSyncProvider(
-                StaticRateProvider({("NGN", "USD"): "0.00065", ("USD", "EUR"): "0.91"})
-            ),
+            AsyncFromSyncProvider(StaticRateProvider({("NGN", "USD"): "0.00065", ("USD", "EUR"): "0.91"})),
             pivots=("USD",),
         )
         return await provider.get_rate(CurrencyCode("NGN"), CurrencyCode("EUR"))
@@ -77,9 +75,7 @@ def test_sync_cache_single_flight():
     results = []
     threads = [
         threading.Thread(
-            target=lambda: results.append(
-                cached.get_rate(CurrencyCode("USD"), CurrencyCode("EUR"))
-            )
+            target=lambda: results.append(cached.get_rate(CurrencyCode("USD"), CurrencyCode("EUR")))
         )
         for _ in range(12)
     ]
@@ -104,12 +100,7 @@ def test_async_cache_single_flight():
     async def run():
         inner = Provider()
         cached = AsyncCachedRateProvider(inner, ttl_seconds=10)
-        await asyncio.gather(
-            *(
-                cached.get_rate(CurrencyCode("USD"), CurrencyCode("EUR"))
-                for _ in range(12)
-            )
-        )
+        await asyncio.gather(*(cached.get_rate(CurrencyCode("USD"), CurrencyCode("EUR")) for _ in range(12)))
         return inner.calls
 
     assert asyncio.run(run()) == 1

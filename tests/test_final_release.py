@@ -145,9 +145,7 @@ async def test_async_production_builder_matches_sync_retry_failover_semantics() 
         def __init__(self) -> None:
             self.calls = 0
 
-        async def get_rate(
-            self, base: CurrencyCode, quote: CurrencyCode
-        ) -> ExchangeRate:
+        async def get_rate(self, base: CurrencyCode, quote: CurrencyCode) -> ExchangeRate:
             from moneytender import ProviderError
 
             self.calls += 1
@@ -157,9 +155,7 @@ async def test_async_production_builder_matches_sync_retry_failover_semantics() 
         def __init__(self) -> None:
             self.calls = 0
 
-        async def get_rate(
-            self, base: CurrencyCode, quote: CurrencyCode
-        ) -> ExchangeRate:
+        async def get_rate(self, base: CurrencyCode, quote: CurrencyCode) -> ExchangeRate:
             self.calls += 1
             return _rate()
 

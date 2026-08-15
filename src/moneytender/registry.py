@@ -41,9 +41,7 @@ class CurrencyRegistry:
         "_lock",
     )
 
-    def __init__(
-        self, currencies: Iterable[Currency] = (), *, frozen: bool = False
-    ) -> None:
+    def __init__(self, currencies: Iterable[Currency] = (), *, frozen: bool = False) -> None:
         self._currencies: dict[CurrencyCode, Currency] = {}
         self._lock = RLock()
         self._frozen = False
@@ -82,9 +80,7 @@ class CurrencyRegistry:
                 )
             self._currencies[code] = currency
 
-    def register_many(
-        self, currencies: Iterable[Currency], *, replace: bool = False
-    ) -> None:
+    def register_many(self, currencies: Iterable[Currency], *, replace: bool = False) -> None:
         """Register several currencies as one validated batch.
 
         When ``replace`` is false, all duplicate checks happen before any mutation so
@@ -114,9 +110,7 @@ class CurrencyRegistry:
             try:
                 return self._currencies.pop(normalized)
             except KeyError as exc:
-                raise UnknownCurrencyError(
-                    f"currency {normalized!r} is not registered"
-                ) from exc
+                raise UnknownCurrencyError(f"currency {normalized!r} is not registered") from exc
 
     def get(self, code: str | CurrencyCode) -> Currency:
         """Resolve a currency by its normalized three-letter code."""
@@ -146,11 +140,7 @@ class CurrencyRegistry:
         values = self.snapshot().values()
         return tuple(
             sorted(
-                (
-                    currency
-                    for currency in values
-                    if currency.status is CurrencyStatus.CURRENT
-                ),
+                (currency for currency in values if currency.status is CurrencyStatus.CURRENT),
                 key=lambda currency: currency.code,
             )
         )
@@ -160,11 +150,7 @@ class CurrencyRegistry:
         values = self.snapshot().values()
         return tuple(
             sorted(
-                (
-                    currency
-                    for currency in values
-                    if currency.status is CurrencyStatus.HISTORICAL
-                ),
+                (currency for currency in values if currency.status is CurrencyStatus.HISTORICAL),
                 key=lambda currency: currency.code,
             )
         )

@@ -24,9 +24,7 @@ class MoneyType(TypeDecorator[Money]):
     impl = JSON
     cache_ok = True
 
-    def process_bind_param(
-        self, value: Money | None, dialect: Any
-    ) -> dict[str, object] | None:
+    def process_bind_param(self, value: Money | None, dialect: Any) -> dict[str, object] | None:
         """Serialize Money into the SQLAlchemy JSON convenience representation."""
         if value is None:
             return None
@@ -62,11 +60,7 @@ class MinorUnitsType(TypeDecorator[int]):
     cache_ok = True
 
     def __init__(self, precision: int = 38) -> None:
-        if (
-            isinstance(precision, bool)
-            or not isinstance(precision, int)
-            or precision < 1
-        ):
+        if isinstance(precision, bool) or not isinstance(precision, int) or precision < 1:
             raise ValueError("precision must be a positive integer")
         self.precision = precision
         super().__init__()
@@ -77,9 +71,7 @@ class MinorUnitsType(TypeDecorator[int]):
             return dialect.type_descriptor(String(self.precision + 1))
         return dialect.type_descriptor(Numeric(self.precision, 0, asdecimal=True))
 
-    def process_bind_param(
-        self, value: int | None, dialect: Dialect
-    ) -> int | str | None:
+    def process_bind_param(self, value: int | None, dialect: Dialect) -> int | str | None:
         """Validate and encode an integer minor-unit value without precision loss."""
         if value is None:
             return None
@@ -103,6 +95,4 @@ class MinorUnitsType(TypeDecorator[int]):
         try:
             return int(value)
         except (TypeError, ValueError) as exc:
-            raise TypeError(
-                f"database returned an invalid minor-unit value: {value!r}"
-            ) from exc
+            raise TypeError(f"database returned an invalid minor-unit value: {value!r}") from exc

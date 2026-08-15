@@ -43,43 +43,29 @@ class Currency:
     def __post_init__(self) -> None:
         code = str(self.code).upper()
         if len(code) != 3 or not code.isalpha():
-            raise ValueError(
-                "currency code must be exactly three alphabetic characters"
-            )
+            raise ValueError("currency code must be exactly three alphabetic characters")
         if (
             isinstance(self.exponent, bool)
             or not isinstance(self.exponent, int)
             or not 0 <= self.exponent <= 9
         ):
             raise ValueError("currency exponent must be an integer between 0 and 9")
-        if self.numeric_code and (
-            len(self.numeric_code) != 3 or not self.numeric_code.isdigit()
-        ):
-            raise ValueError(
-                "numeric_code must be an empty string or a three-digit ISO code"
-            )
+        if self.numeric_code and (len(self.numeric_code) != 3 or not self.numeric_code.isdigit()):
+            raise ValueError("numeric_code must be an empty string or a three-digit ISO code")
         if (
             isinstance(self.cash_increment, bool)
             or not isinstance(self.cash_increment, int)
             or self.cash_increment <= 0
         ):
             raise ValueError("cash_increment must be a positive number of minor units")
-        if (
-            self.valid_from is not None
-            and self.valid_to is not None
-            and self.valid_from > self.valid_to
-        ):
+        if self.valid_from is not None and self.valid_to is not None and self.valid_from > self.valid_to:
             raise ValueError("valid_from cannot be later than valid_to")
         replacement = self.replacement_code
         if replacement is not None:
             normalized_replacement = str(replacement).upper()
             if len(normalized_replacement) != 3 or not normalized_replacement.isalpha():
-                raise ValueError(
-                    "replacement_code must be a three-letter currency code"
-                )
-            object.__setattr__(
-                self, "replacement_code", CurrencyCode(normalized_replacement)
-            )
+                raise ValueError("replacement_code must be a three-letter currency code")
+            object.__setattr__(self, "replacement_code", CurrencyCode(normalized_replacement))
         object.__setattr__(self, "code", CurrencyCode(code))
 
     @property

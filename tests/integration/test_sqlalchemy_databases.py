@@ -52,10 +52,7 @@ def _roundtrip_json(values: list[Money]) -> list[Money]:
         with Session(engine) as session:
             session.add_all(JsonMoneyRecord(amount=value) for value in values)
             session.commit()
-            return [
-                row.amount
-                for row in session.query(JsonMoneyRecord).order_by(JsonMoneyRecord.id)
-            ]
+            return [row.amount for row in session.query(JsonMoneyRecord).order_by(JsonMoneyRecord.id)]
     finally:
         Base.metadata.drop_all(engine)
         engine.dispose()
@@ -83,15 +80,12 @@ def test_recommended_native_columns_roundtrip_large_exact_values() -> None:
         ]
         with Session(engine) as session:
             session.add_all(
-                NativeMoneyRecord(amount_minor=amount, currency_code=currency)
-                for amount, currency in values
+                NativeMoneyRecord(amount_minor=amount, currency_code=currency) for amount, currency in values
             )
             session.commit()
             restored = [
                 (int(row.amount_minor), row.currency_code)
-                for row in session.query(NativeMoneyRecord).order_by(
-                    NativeMoneyRecord.id
-                )
+                for row in session.query(NativeMoneyRecord).order_by(NativeMoneyRecord.id)
             ]
         assert restored == values
         assert all(isinstance(row[0], int) for row in restored)

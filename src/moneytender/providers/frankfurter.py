@@ -40,12 +40,8 @@ def _build(data: dict[str, Any], source_uri: str) -> ExchangeRate:
             tzinfo=UTC,
         )
     except (KeyError, ValueError, TypeError) as exc:
-        raise ProviderError(
-            "Frankfurter response is missing valid base/quote/rate/date fields"
-        ) from exc
-    return ExchangeRate(
-        base, quote, value, RateProvenance("frankfurter", source_uri, as_of)
-    )
+        raise ProviderError("Frankfurter response is missing valid base/quote/rate/date fields") from exc
+    return ExchangeRate(base, quote, value, RateProvenance("frankfurter", source_uri, as_of))
 
 
 class FrankfurterProvider:
@@ -56,9 +52,7 @@ class FrankfurterProvider:
         "_owned",
     )
 
-    def __init__(
-        self, *, client: httpx.Client | None = None, timeout: float = 5.0
-    ) -> None:
+    def __init__(self, *, client: httpx.Client | None = None, timeout: float = 5.0) -> None:
         self._owned = client is None
         self._client = client or httpx.Client(
             base_url=_API,
@@ -74,13 +68,9 @@ class FrankfurterProvider:
         try:
             response = self._client.get(path)
         except httpx.HTTPError as exc:
-            raise ProviderError(
-                f"Frankfurter network failure for {base}/{quote}: {exc}"
-            ) from exc
+            raise ProviderError(f"Frankfurter network failure for {base}/{quote}: {exc}") from exc
         if response.status_code in {404, 422}:
-            raise RateUnavailableError(
-                f"Frankfurter has no usable rate for {base}/{quote}"
-            )
+            raise RateUnavailableError(f"Frankfurter has no usable rate for {base}/{quote}")
         try:
             response.raise_for_status()
         except httpx.HTTPStatusError as exc:
@@ -114,9 +104,7 @@ class AsyncFrankfurterProvider:
         "_owned",
     )
 
-    def __init__(
-        self, *, client: httpx.AsyncClient | None = None, timeout: float = 5.0
-    ) -> None:
+    def __init__(self, *, client: httpx.AsyncClient | None = None, timeout: float = 5.0) -> None:
         self._owned = client is None
         self._client = client or httpx.AsyncClient(
             base_url=_API,
@@ -132,13 +120,9 @@ class AsyncFrankfurterProvider:
         try:
             response = await self._client.get(path)
         except httpx.HTTPError as exc:
-            raise ProviderError(
-                f"Frankfurter network failure for {base}/{quote}: {exc}"
-            ) from exc
+            raise ProviderError(f"Frankfurter network failure for {base}/{quote}: {exc}") from exc
         if response.status_code in {404, 422}:
-            raise RateUnavailableError(
-                f"Frankfurter has no usable rate for {base}/{quote}"
-            )
+            raise RateUnavailableError(f"Frankfurter has no usable rate for {base}/{quote}")
         try:
             response.raise_for_status()
         except httpx.HTTPStatusError as exc:

@@ -97,13 +97,8 @@ class RatePolicy:
             raise TypeError("rate must be an ExchangeRate")
 
         if rate.derivation is DerivationKind.INVERSE and not self.allow_inverse:
-            raise RatePolicyError(
-                "inverse-derived rates are not allowed by this policy"
-            )
-        if (
-            rate.derivation is DerivationKind.TRIANGULATION
-            and not self.allow_triangulation
-        ):
+            raise RatePolicyError("inverse-derived rates are not allowed by this policy")
+        if rate.derivation is DerivationKind.TRIANGULATION and not self.allow_triangulation:
             raise RatePolicyError("triangulated rates are not allowed by this policy")
 
         if rate.kind not in self.allowed_kinds:
@@ -150,9 +145,7 @@ class RatePolicy:
         if self.validator is not None:
             self.validator(rate)
 
-    def _validate_future_timestamp(
-        self, reference_time: datetime, current: datetime
-    ) -> None:
+    def _validate_future_timestamp(self, reference_time: datetime, current: datetime) -> None:
         if reference_time - current > self.max_future_skew:
             raise RatePolicyError(
                 f"rate timestamp {reference_time.isoformat()} is unexpectedly in the future "

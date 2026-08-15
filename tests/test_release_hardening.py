@@ -90,9 +90,7 @@ async def test_async_stale_fallback_window_is_checked_after_slow_failure() -> No
     class SlowFailure:
         calls = 0
 
-        async def get_rate(
-            self, base: CurrencyCode, quote: CurrencyCode
-        ) -> ExchangeRate:
+        async def get_rate(self, base: CurrencyCode, quote: CurrencyCode) -> ExchangeRate:
             self.calls += 1
             if self.calls == 1:
                 return _rate(base, quote)
@@ -164,9 +162,7 @@ async def test_async_observer_failure_does_not_mask_cancellation() -> None:
     started = asyncio.Event()
 
     class BlockingProvider:
-        async def get_rate(
-            self, base: CurrencyCode, quote: CurrencyCode
-        ) -> ExchangeRate:
+        async def get_rate(self, base: CurrencyCode, quote: CurrencyCode) -> ExchangeRate:
             started.set()
             await asyncio.sleep(60)
             return _rate(base, quote)
@@ -176,9 +172,7 @@ async def test_async_observer_failure_does_not_mask_cancellation() -> None:
             raise RuntimeError("observer broken")
 
     task = asyncio.create_task(
-        AsyncObservedRateProvider(BlockingProvider(), BrokenObserver()).get_rate(
-            USD, EUR
-        )
+        AsyncObservedRateProvider(BlockingProvider(), BrokenObserver()).get_rate(USD, EUR)
     )
     await started.wait()
     task.cancel()
@@ -208,9 +202,7 @@ def test_pair_scoped_circuit_does_not_poison_other_pairs() -> None:
 @pytest.mark.asyncio
 async def test_async_pair_scoped_circuit_does_not_poison_other_pairs() -> None:
     class PartialFailure:
-        async def get_rate(
-            self, base: CurrencyCode, quote: CurrencyCode
-        ) -> ExchangeRate:
+        async def get_rate(self, base: CurrencyCode, quote: CurrencyCode) -> ExchangeRate:
             if (base, quote) == (USD, EUR):
                 raise ProviderError("USD/EUR down")
             return _rate(base, quote, "1.2")
@@ -267,9 +259,7 @@ async def test_cancellation_during_retry_sleep_is_not_swallowed() -> None:
     called = asyncio.Event()
 
     class Down:
-        async def get_rate(
-            self, base: CurrencyCode, quote: CurrencyCode
-        ) -> ExchangeRate:
+        async def get_rate(self, base: CurrencyCode, quote: CurrencyCode) -> ExchangeRate:
             called.set()
             raise ProviderError("down")
 
@@ -324,17 +314,13 @@ def test_pair_circuit_validation_and_snapshots() -> None:
     with pytest.raises(ValueError):
         PairCircuitBreakerRateProvider(StaticRateProvider({}), failure_threshold=0)
     with pytest.raises(ValueError):
-        PairCircuitBreakerRateProvider(
-            StaticRateProvider({}), recovery_timeout_seconds=0
-        )
+        PairCircuitBreakerRateProvider(StaticRateProvider({}), recovery_timeout_seconds=0)
 
     class Down:
         def get_rate(self, base: CurrencyCode, quote: CurrencyCode) -> ExchangeRate:
             raise ProviderError("down")
 
-    breaker = PairCircuitBreakerRateProvider(
-        Down(), failure_threshold=1, recovery_timeout_seconds=0.001
-    )
+    breaker = PairCircuitBreakerRateProvider(Down(), failure_threshold=1, recovery_timeout_seconds=0.001)
     assert breaker.snapshot(USD, EUR).state.value == "closed"
     with pytest.raises(ProviderError):
         breaker.get_rate(USD, EUR)
@@ -346,9 +332,7 @@ def test_pair_circuit_validation_and_snapshots() -> None:
 @pytest.mark.asyncio
 async def test_async_pair_circuit_validation_and_snapshots() -> None:
     class Good:
-        async def get_rate(
-            self, base: CurrencyCode, quote: CurrencyCode
-        ) -> ExchangeRate:
+        async def get_rate(self, base: CurrencyCode, quote: CurrencyCode) -> ExchangeRate:
             return _rate(base, quote)
 
     with pytest.raises(ValueError):
@@ -357,14 +341,10 @@ async def test_async_pair_circuit_validation_and_snapshots() -> None:
         AsyncPairCircuitBreakerRateProvider(Good(), recovery_timeout_seconds=0)
 
     class Down:
-        async def get_rate(
-            self, base: CurrencyCode, quote: CurrencyCode
-        ) -> ExchangeRate:
+        async def get_rate(self, base: CurrencyCode, quote: CurrencyCode) -> ExchangeRate:
             raise ProviderError("down")
 
-    breaker = AsyncPairCircuitBreakerRateProvider(
-        Down(), failure_threshold=1, recovery_timeout_seconds=0.001
-    )
+    breaker = AsyncPairCircuitBreakerRateProvider(Down(), failure_threshold=1, recovery_timeout_seconds=0.001)
     assert (await breaker.snapshot(USD, EUR)).state.value == "closed"
     with pytest.raises(ProviderError):
         await breaker.get_rate(USD, EUR)
@@ -404,9 +384,7 @@ def test_production_builder_exercises_fallback_rate_limit_audit_and_observer() -
         audit_sink=Sink(),
         observer=Observer(),
     )
-    assert converter.convert(Money.from_major("1", "USD"), "EUR") == Money.from_major(
-        "0.90", "EUR"
-    )
+    assert converter.convert(Money.from_major("1", "USD"), "EUR") == Money.from_major("0.90", "EUR")
     assert records
     assert events[-1].succeeded
 
@@ -419,9 +397,7 @@ async def test_async_production_builder_and_converter() -> None:
     )
 
     class Live:
-        async def get_rate(
-            self, base: CurrencyCode, quote: CurrencyCode
-        ) -> ExchangeRate:
+        async def get_rate(self, base: CurrencyCode, quote: CurrencyCode) -> ExchangeRate:
             return _rate(base, quote)
 
     converter = build_async_production_converter(
@@ -448,9 +424,7 @@ async def test_async_audit_and_observer_failure_modes() -> None:
     from moneytender.infrastructure import AsyncAuditedRateProvider
 
     class Live:
-        async def get_rate(
-            self, base: CurrencyCode, quote: CurrencyCode
-        ) -> ExchangeRate:
+        async def get_rate(self, base: CurrencyCode, quote: CurrencyCode) -> ExchangeRate:
             return _rate(base, quote)
 
     class BrokenSink:
