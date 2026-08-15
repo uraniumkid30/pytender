@@ -8,7 +8,7 @@ from decimal import (
     Decimal,
     localcontext,
 )
-from typing import Protocol, runtime_checkable
+from typing import Protocol, cast, runtime_checkable
 
 from ._numeric import integer_decimal_digits
 from .exceptions import RoundingError
@@ -36,9 +36,12 @@ class DecimalRounding:
         if not value.is_finite():
             raise RoundingError("cannot round a non-finite Decimal")
 
-        digits = len(value.as_tuple().digits)
+        decimal_tuple = value.as_tuple()
+        # ``is_finite()`` above guarantees that DecimalTuple.exponent is an int.
+        exponent = cast(int, decimal_tuple.exponent)
+        digits = len(decimal_tuple.digits)
         with localcontext() as context:
-            context.prec = max(28, digits + abs(value.as_tuple().exponent) + 2)
+            context.prec = max(28, digits + abs(exponent) + 2)
             return int(value.quantize(Decimal("1"), rounding=self.mode))
 
 

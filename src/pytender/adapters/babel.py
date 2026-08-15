@@ -48,6 +48,6 @@ class BabelMoneyFormatter:
             )
         )
 
-    def format(self, money: Money) -> str:  # type: ignore[no-redef]
+    def format(self, money: Money) -> str:
         """Implement the MoneyFormatter protocol with Babel/CLDR."""
         return self.format_money(money)

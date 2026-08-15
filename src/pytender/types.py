@@ -71,7 +71,7 @@ class Currency:
     @property
     def factor(self) -> int:
         """Return the number of minor units in one major currency unit."""
-        return 10**self.exponent
+        return int(10**self.exponent)
 
     def is_valid_on(self, when: date) -> bool:
         """Return whether metadata says the currency was valid on ``when``."""

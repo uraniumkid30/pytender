@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Any
+from typing import Any, cast
 
 try:
     from sqlalchemy import Numeric, String
@@ -10,7 +10,7 @@ except ImportError as exc:  # pragma: no cover
     raise ImportError("SQLAlchemy adapter requires PyTender[sqlalchemy]") from exc
 
 from ..money import Money
-from ..serialization import from_dict, to_dict
+from ..serialization import MoneyPayload, from_dict, to_dict
 
 
 class MoneyType(TypeDecorator[Money]):
@@ -38,7 +38,7 @@ class MoneyType(TypeDecorator[Money]):
             return None
         if not isinstance(value, dict):
             raise TypeError("MoneyType expected a JSON object from the database")
-        return from_dict(value)
+        return from_dict(cast(MoneyPayload, value))
 
 
 class MinorUnitsType(TypeDecorator[int]):
